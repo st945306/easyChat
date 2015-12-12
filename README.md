@@ -1,5 +1,5 @@
 # easyChat
-###A chatroom with a simplistic but fancy, concise but extravagant style.
+A chatroom with a simplistic but fancy, concise but extravagant style.
 
-####Programming Language: Java  
-####GUI framework: JavaFX
+Programming Language: Java  
+GUI framework: JavaFX
