@@ -32,6 +32,7 @@ public class Client{
 	public boolean login(String name, String password){
 		String result = new String();
 		try{
+			toServer.println("login");
 			toServer.println(name);
 			toServer.println(password);
 			result = fromServer.readLine();
@@ -44,7 +45,12 @@ public class Client{
 
 	public void run(){
 		createSocket();
-//		login();
+		if (login("Nicky", "12345"))
+			System.out.println("successful login");
+		else
+			System.out.println("login failed");
+
+
 		
 /*
 		try{

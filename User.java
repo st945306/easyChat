@@ -15,6 +15,18 @@ public class User{
 		System.out.format("%d name: %s, password: %s%n", this.id, this.name, this.password);
 	}
 
+	public String getName(){
+		return this.name;
+	}
+
+	public String getPassword(){
+		return this.password;
+	}
+
+	public int getId(){
+		return this.id;
+	}
+
 
 
 

@@ -37,12 +37,30 @@ public class ServerThread extends Thread{
 	}
 	
 	private void loginOrRegister(){
-		String command = fromClient.readLine();
-		if (command.equals("login")){
-			System.out.println("l");
+		String command = new String();
+		String name = new String();
+		String password = new String();
+		try{
+			command = fromClient.readLine();
+			name = fromClient.readLine();
+			password = fromClient.readLine();
 		}
-		else if(command.equals("register")){
-			System.out.println("r");
+		catch (Exception e){
+			System.out.println("server login or register error");
+		}
+		if (command.equals("login")){
+			System.out.println("login");
+			for (int i = 0; i < User.userNum; i++){
+				if (users[i].getName().equals(name) && 
+					users[i].getPassword().equals(password)){
+					toClient.println("success");
+					return;
+				}
+				toClient.println("failed");
+			}
+		}
+		else if (command.equals("register")){
+			System.out.println("register");
 
 		}
 	}
