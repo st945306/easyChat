@@ -6,7 +6,7 @@ public class ServerThread extends Thread{
 	private static final int MAXUSER = 30;
 	private static String[][] messages = new String[MAXUSER][MAXUSER];
 	private Socket socket;
-	private User[] users = new User[MAXUSER];
+	private static User[] users = new User[MAXUSER];
 	private PrintWriter toClient;
 	private BufferedReader fromClient;
 
@@ -56,12 +56,34 @@ public class ServerThread extends Thread{
 					toClient.println("success");
 					return;
 				}
-				toClient.println("failed");
 			}
+			toClient.println("failed");
 		}
 		else if (command.equals("register")){
 			System.out.println("register");
+			for (int i = 0; i < User.userNum; i++)
+				if (users[i].getName().equals(name)){
+					System.out.println("name has already been registered");
+					toClient.println("failed");
+					return;
+				}
+			int id = User.userNum;
+			users[id] = new User(id, name, password);
+			users[id].printUserInfo();
+			User.userNum++;
 
+			try{
+				FileWriter fr = new FileWriter("./user.dat", true);
+				PrintWriter pw = new PrintWriter(fr);
+				pw.format("%d%n%s%n%s%n", id, name, password);
+				pw.flush();
+				fr.close();
+			}
+			catch (Exception e){
+				System.out.println("server write user.dat error");
+			}
+			System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
+			toClient.println("success");
 		}
 	}
 

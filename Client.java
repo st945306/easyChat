@@ -43,23 +43,41 @@ public class Client{
 		return (result.equals("success")) ? true : false;
 	}
 
-	public void run(){
-		createSocket();
-		if (login("Nicky", "12345"))
-			System.out.println("successful login");
-		else
-			System.out.println("login failed");
-
-
-		
-/*
+	public boolean register(String name, String password){
+		String result = new String();
 		try{
-			
-			toServer.println(fromUser.readLine());
+			toServer.println("register");
+			toServer.println(name);
+			toServer.println(password);
+			result = fromServer.readLine();
 		}
 		catch(Exception e){
 			System.out.println("client send msg error");
 		}
-*/
+		return (result.equals("success")) ? true : false;
+	}
+
+	public void run(){
+		createSocket();
+		try {
+			String command = fromUser.readLine();
+			String name = fromUser.readLine();
+			String password = fromUser.readLine();
+			if (command.equals("login")){
+				if (login(name, password))
+					System.out.println("successfully login");
+				else
+					System.out.println("login failed");
+			}
+			else if (command.equals("register")){
+				if (register(name, password))
+					System.out.println("successfully registered");
+				else
+					System.out.println("registered failed");
+			}
+		}
+		catch (Exception e){
+			System.out.println("general error");
+		}
 	}
 }
