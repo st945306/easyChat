@@ -40,50 +40,53 @@ public class ServerThread extends Thread{
 		String command = new String();
 		String name = new String();
 		String password = new String();
-		try{
-			command = fromClient.readLine();
-			name = fromClient.readLine();
-			password = fromClient.readLine();
-		}
-		catch (Exception e){
-			System.out.println("server login or register error");
-		}
-		if (command.equals("login")){
-			System.out.println("login");
-			for (int i = 0; i < User.userNum; i++){
-				if (users[i].getName().equals(name) && 
-					users[i].getPassword().equals(password)){
-					toClient.println("success");
-					return;
-				}
-			}
-			toClient.println("failed");
-		}
-		else if (command.equals("register")){
-			System.out.println("register");
-			for (int i = 0; i < User.userNum; i++)
-				if (users[i].getName().equals(name)){
-					System.out.println("name has already been registered");
-					toClient.println("failed");
-					return;
-				}
-			int id = User.userNum;
-			users[id] = new User(id, name, password);
-			users[id].printUserInfo();
-			User.userNum++;
-
+		while (true){
 			try{
-				FileWriter fr = new FileWriter("./user.dat", true);
-				PrintWriter pw = new PrintWriter(fr);
-				pw.format("%d%n%s%n%s%n", id, name, password);
-				pw.flush();
-				fr.close();
+				command = fromClient.readLine();
+				name = fromClient.readLine();
+				password = fromClient.readLine();
 			}
 			catch (Exception e){
-				System.out.println("server write user.dat error");
+				System.out.println("server login or register error");
 			}
-			System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
-			toClient.println("success");
+			if (command.equals("login")){
+				System.out.println("login");
+				for (int i = 0; i < User.userNum; i++){
+					if (users[i].getName().equals(name) && 
+						users[i].getPassword().equals(password)){
+						toClient.println("success");
+						return;
+					}
+				}
+				System.out.println("wrong name or password");
+				toClient.println("failed");
+			}
+			else if (command.equals("register")){
+				System.out.println("register");
+				for (int i = 0; i < User.userNum; i++)
+					if (users[i].getName().equals(name)){
+						System.out.println("name has already been registered");
+						toClient.println("failed");
+						return;
+					}
+				int id = User.userNum;
+				users[id] = new User(id, name, password);
+				users[id].printUserInfo();
+				User.userNum++;
+
+				try{
+					FileWriter fr = new FileWriter("./user.dat", true);
+					PrintWriter pw = new PrintWriter(fr);
+					pw.format("%d%n%s%n%s%n", id, name, password);
+					pw.flush();
+					fr.close();
+				}
+				catch (Exception e){
+					System.out.println("server write user.dat error");
+				}
+				System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
+				toClient.println("success");
+			}
 		}
 	}
 

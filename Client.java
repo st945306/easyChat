@@ -60,6 +60,7 @@ public class Client{
 	public void run(){
 		createSocket();
 		try {
+			while (true){
 			String command = fromUser.readLine();
 			String name = fromUser.readLine();
 			String password = fromUser.readLine();
@@ -69,12 +70,14 @@ public class Client{
 				else
 					System.out.println("login failed");
 			}
+		}
+			/*
 			else if (command.equals("register")){
 				if (register(name, password))
 					System.out.println("successfully registered");
 				else
 					System.out.println("registered failed");
-			}
+			}*/
 		}
 		catch (Exception e){
 			System.out.println("general error");
