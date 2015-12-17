@@ -4,11 +4,13 @@ import java.net.*;
 public class ServerThread extends Thread{
 
 	private static final int MAXUSER = 30;
-	private static String[][] messages = new String[MAXUSER][MAXUSER];
-	private Socket socket;
 	private static User[] users = new User[MAXUSER];
+	private static String[][] mailbox = new String[MAXUSER][MAXUSER];
+	private static boolean[][] hasNewMessage = new boolean[MAXUSER][MAXUSER];
+	private Socket socket;
 	private PrintWriter toClient;
 	private BufferedReader fromClient;
+	private int userID, targetUserID;
 
 	private void readUserData(){
 		User.userNum = 0;
@@ -36,7 +38,8 @@ public class ServerThread extends Thread{
 		readUserData();
 	}
 	
-	private void loginOrRegister(){
+	//return user id
+	private int loginOrRegister(){
 		String command = new String();
 		String name = new String();
 		String password = new String();
@@ -55,7 +58,7 @@ public class ServerThread extends Thread{
 					if (users[i].getName().equals(name) && 
 						users[i].getPassword().equals(password)){
 						toClient.println("success");
-						return;
+						return i;
 					}
 				}
 				System.out.println("wrong name or password");
@@ -63,12 +66,16 @@ public class ServerThread extends Thread{
 			}
 			else if (command.equals("register")){
 				System.out.println("register");
-				for (int i = 0; i < User.userNum; i++)
+				int i;
+				for (i = 0; i < User.userNum; i++)
 					if (users[i].getName().equals(name)){
 						System.out.println("name has already been registered");
 						toClient.println("failed");
-						return;
+						break;
 					}
+				if (i != User.userNum)
+					continue;
+				//name is legal to use
 				int id = User.userNum;
 				users[id] = new User(id, name, password);
 				users[id].printUserInfo();
@@ -86,8 +93,39 @@ public class ServerThread extends Thread{
 				}
 				System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
 				toClient.println("success");
+				return id;
 			}
 		}
+	}
+
+	private void startChat(){
+		String command = new String();
+		String targetName = new String();
+		System.out.println(userID);
+		System.out.println(hasNewMessage[0][userID]);
+
+		while(true){
+			try{
+				command = fromClient.readLine();
+				if (command.equals("change")){
+					//change targetUserID
+					targetName = fromClient.readLine();
+					System.out.println(targetName);
+					toClient.println("success");
+				}
+				else if(command.equals("send")){
+					//write to mailbox[userID][targetUserID]
+
+				}
+				else if(command.equals("receive")){
+					//read from mailbox[targetUserID][userID]
+				}
+			}
+			catch(Exception e){
+				System.out.println("chat error");
+			}
+		}
+	
 	}
 
 	public void run(){
@@ -98,7 +136,8 @@ public class ServerThread extends Thread{
 			fromClient = new BufferedReader(isr);
 
 			toClient.println("Welcome to easyChat!");
-			loginOrRegister();
+			userID = loginOrRegister();	//will only return when user successfully login or register
+			startChat();
 
 
 			/*

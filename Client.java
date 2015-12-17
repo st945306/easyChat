@@ -57,27 +57,77 @@ public class Client{
 		return (result.equals("success")) ? true : false;
 	}
 
+	public boolean selectTarget(String targetName){
+		String reply = new String();
+		try{
+			toServer.println("change");
+			toServer.println(targetName);
+			reply = fromServer.readLine();
+		}
+		catch(Exception e){
+			System.out.println("selectTarget error");
+		}
+
+		if (reply.equals("success")){
+			System.out.println("target user exist");
+			return true;
+		}
+		else{
+			System.out.println("target user does not exist");
+			return false;
+		}
+	}
+
+	public void send(String message){
+		try{
+			toServer.println("send");
+			toServer.println(message);
+		}
+		catch(Exception e){
+			System.out.println("send message error");
+		}
+	}
+
+	public String receive(){
+		String message = new String();
+		try{
+			toServer.println("receive");
+			message = fromServer.readLine();
+		}
+		catch(Exception e){
+			System.out.println("receive message error");
+		}
+		return message;
+	}
+
 	public void run(){
 		createSocket();
+
+		boolean isLoginOrRegister = false;
+		String command, name, password;
 		try {
-			while (true){
-			String command = fromUser.readLine();
-			String name = fromUser.readLine();
-			String password = fromUser.readLine();
-			if (command.equals("login")){
-				if (login(name, password))
-					System.out.println("successfully login");
-				else
-					System.out.println("login failed");
+			while(!isLoginOrRegister){
+				command = fromUser.readLine();
+				name = fromUser.readLine();
+				password = fromUser.readLine();
+				if (command.equals("login"))
+					if (login(name, password)){	
+						System.out.println("successfully login");
+						isLoginOrRegister = true;
+					}
+					else
+						System.out.println("login failed");
+				else if (command.equals("register"))
+					if (register(name, password)){
+						System.out.println("successfully registered");
+						isLoginOrRegister = true;
+					}
+					else
+						System.out.println("registered failed");
 			}
-		}
-			/*
-			else if (command.equals("register")){
-				if (register(name, password))
-					System.out.println("successfully registered");
-				else
-					System.out.println("registered failed");
-			}*/
+			selectTarget("Ryan");
+			send("You suck!");
+			System.out.println(receive());
 		}
 		catch (Exception e){
 			System.out.println("general error");
