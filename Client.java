@@ -57,6 +57,19 @@ public class Client{
 		return (result.equals("success")) ? true : false;
 	}
 
+	public int checkOnline(String targetName){
+		String reply = new String();
+		try{
+			toServer.println("check");
+			toServer.println(targetName);
+			reply = fromServer.readLine();
+		}
+		catch(Exception e){
+			System.out.println("checkOnline error");
+		}
+		return Integer.parseInt(reply);
+	}
+
 	public boolean selectTarget(String targetName){
 		String reply = new String();
 		try{
@@ -125,9 +138,10 @@ public class Client{
 					else
 						System.out.println("registered failed");
 			}
-			selectTarget("Ryan");
-			send("You suck!");
-			System.out.println(receive());
+			System.out.println(checkOnline("Ryan"));
+			System.out.println(checkOnline("Nicky"));
+			//send("You suck!");
+			//System.out.println(receive());
 		}
 		catch (Exception e){
 			System.out.println("general error");

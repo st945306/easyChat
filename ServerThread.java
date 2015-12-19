@@ -23,7 +23,7 @@ public class ServerThread extends Thread{
 				id = Integer.parseInt(br.readLine());
 				name = br.readLine();
 				password = br.readLine();
-				users[id] = new User(id, name, password);
+				users[id] = new User(id, name, password, false);
 				users[id].printUserInfo();
 				User.userNum++;
 			}
@@ -38,8 +38,7 @@ public class ServerThread extends Thread{
 		readUserData();
 	}
 	
-	//return user id
-	private int loginOrRegister(){
+	private void loginOrRegister(){
 		String command = new String();
 		String name = new String();
 		String password = new String();
@@ -58,7 +57,9 @@ public class ServerThread extends Thread{
 					if (users[i].getName().equals(name) && 
 						users[i].getPassword().equals(password)){
 						toClient.println("success");
-						return i;
+						users[i].setOnline();
+						userID = i;
+						return;
 					}
 				}
 				System.out.println("wrong name or password");
@@ -77,7 +78,7 @@ public class ServerThread extends Thread{
 					continue;
 				//name is legal to use
 				int id = User.userNum;
-				users[id] = new User(id, name, password);
+				users[id] = new User(id, name, password, true);
 				users[id].printUserInfo();
 				User.userNum++;
 
@@ -93,32 +94,58 @@ public class ServerThread extends Thread{
 				}
 				System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
 				toClient.println("success");
-				return id;
+				userID = id;
+				return;
 			}
 		}
 	}
 
 	private void startChat(){
-		String command = new String();
+		String command = "nothing";
 		String targetName = new String();
+		String onlineResult = new String();
+
 		System.out.println(userID);
 		System.out.println(hasNewMessage[0][userID]);
 
 		while(true){
 			try{
-				command = fromClient.readLine();
-				if (command.equals("change")){
+				if (fromClient.ready())
+					command = fromClient.readLine();
+				if (command.equals("check")){
+					targetName = fromClient.readLine();
+					System.out.format("checking if %s is online...%n", targetName);
+					int i;
+					for (i = 0; i < User.userNum; i++)
+						if (users[i].getName().equals(targetName)){
+							if (users[i].isOnline())
+								onlineResult = "1";
+							else
+								onlineResult = "2";
+							break;
+						}
+					if (i == User.userNum)
+						onlineResult = "3";
+					toClient.println(onlineResult);
+					command = "nothing";
+				}
+				else if (command.equals("change")){
 					//change targetUserID
 					targetName = fromClient.readLine();
 					System.out.println(targetName);
 					toClient.println("success");
+					command = "nothing";
+
 				}
 				else if(command.equals("send")){
 					//write to mailbox[userID][targetUserID]
+					command = "nothing";
+
 
 				}
 				else if(command.equals("receive")){
 					//read from mailbox[targetUserID][userID]
+					command = "nothing";
 				}
 			}
 			catch(Exception e){
@@ -136,7 +163,7 @@ public class ServerThread extends Thread{
 			fromClient = new BufferedReader(isr);
 
 			toClient.println("Welcome to easyChat!");
-			userID = loginOrRegister();	//will only return when user successfully login or register
+			loginOrRegister();	//will only return when user successfully login or register
 			startChat();
 
 
