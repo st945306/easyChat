@@ -132,8 +132,16 @@ public class ServerThread extends Thread{
 				else if (command.equals("change")){
 					//change targetUserID
 					targetName = fromClient.readLine();
-					System.out.println(targetName);
-					toClient.println("success");
+					System.out.println("selecting " + targetName + "...");
+					int i;
+					for (i = 0; i < User.userNum; i++)
+						if (users[i].getName().equals(targetName)){
+							toClient.println("success");
+							userID = i;
+							break;
+						}
+					if (i == User.userNum)
+						toClient.println("failed");
 					command = "nothing";
 
 				}
@@ -165,22 +173,9 @@ public class ServerThread extends Thread{
 			toClient.println("Welcome to easyChat!");
 			loginOrRegister();	//will only return when user successfully login or register
 			startChat();
-
-
-			/*
-			while (true){
-				if (!fromClient.ready())
-					continue;
-
-			}
-			String str = fromClient.readLine();
-			System.out.println(str);
-			*/
 		}
 		catch(Exception e){
 			System.out.println("server send msg error");
 		}
 	}
-
-
 }

@@ -118,8 +118,12 @@ public class Client{
 		String command, name, password;
 		try {
 			while(!isLoginOrRegister){
+				System.out.print("login or register: ");
 				command = fromUser.readLine();
+				System.out.print("name: ");
 				name = fromUser.readLine();
+				System.out.print("password: ");
+
 				password = fromUser.readLine();
 				if (command.equals("login"))
 					if (login(name, password)){	
@@ -138,6 +142,10 @@ public class Client{
 			}
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
+
+			selectTarget("Nicky");
+			selectTarget("keroro");
+			selectTarget("Ryan");
 			//send("You suck!");
 			//System.out.println(receive());
 		}
