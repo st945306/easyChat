@@ -8,11 +8,9 @@ public class Client{
 	private InputStream str;
 
 	public void createSocket(){
-		String ip = "127.0.0.1";
-		int port = 12345;
 		Socket socket = new Socket();
 		try{
-			socket = new Socket(ip, port);
+			socket = new Socket(Server.serverIp, Server.serverPort);
 		}
 		catch(Exception e){
 			System.out.println("create socket error");
@@ -125,7 +123,7 @@ public class Client{
 				password = fromUser.readLine();
 				if (command.equals("login"))
 					if (login(name, password)){	
-						System.out.println("successfully login");
+						System.out.println("successfully logged in");
 						isLoginOrRegister = true;
 					}
 					else

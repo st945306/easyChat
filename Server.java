@@ -4,12 +4,13 @@ import java.net.*;
 public class Server{
 
 	private ServerSocket serverSocket;
+	public final static String serverIp = "127.0.0.1";
+	public final static int serverPort = 12345;
 
 	private void createSocket(){
 		try{
-			int port = 12345;
-			InetAddress ip = InetAddress.getByName("127.0.0.1");
-			serverSocket = new ServerSocket(port, 50, ip);
+			InetAddress ip = InetAddress.getByName(serverIp);
+			serverSocket = new ServerSocket(serverPort, 50, ip);
 		}
 		catch(Exception e){
 			System.out.println("open server socket error");
