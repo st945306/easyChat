@@ -6,11 +6,13 @@ public class Client{
 	private BufferedReader fromServer, fromUser;
 	private PrintWriter toServer;
 	private InputStream str;
+	private final String serverIp = "127.0.0.1";
+	private final int serverPort = 12345;
 
 	public void createSocket(){
 		Socket socket = new Socket();
 		try{
-			socket = new Socket(Server.serverIp, Server.serverPort);
+			socket = new Socket(serverIp, serverPort);
 		}
 		catch(Exception e){
 			System.out.println("create socket error");
