@@ -146,6 +146,16 @@ public class Client{
 			selectTarget("Nicky");
 			selectTarget("keroro");
 			selectTarget("Ryan");
+
+			String message;
+			while (true){
+				if (fromUser.ready()){
+					message = fromUser.readLine();
+					send(message);
+				}
+				message = receive();
+				System.out.println(message);
+			}
 			//send("You suck!");
 			//System.out.println(receive());
 		}

@@ -104,6 +104,7 @@ public class ServerThread extends Thread{
 		String command = "nothing";
 		String targetName = new String();
 		String onlineResult = new String();
+		String message = new String();
 
 		System.out.println(userID);
 		System.out.println(hasNewMessage[0][userID]);
@@ -147,12 +148,17 @@ public class ServerThread extends Thread{
 				}
 				else if(command.equals("send")){
 					//write to mailbox[userID][targetUserID]
+					message = fromClient.readLine();
+					System.out.println(message);
+
+
+
 					command = "nothing";
-
-
 				}
 				else if(command.equals("receive")){
 					//read from mailbox[targetUserID][userID]
+					toClient.println("meesgae to you");
+					
 					command = "nothing";
 				}
 			}
