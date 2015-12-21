@@ -143,9 +143,14 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
-			selectTarget("Nicky");
-			selectTarget("keroro");
-			selectTarget("Ryan");
+			while (true){
+				System.out.print("Who do you want to chat with? ");
+				String targetName = fromUser.readLine();
+				if (selectTarget(targetName)){
+					System.out.format("Start chatting with %s!%n", targetName);
+					break;
+				}
+			}
 
 			String message;
 			while (true){
@@ -154,7 +159,8 @@ public class Client{
 					send(message);
 				}
 				message = receive();
-				System.out.println(message);
+				if (message.length() != 0)
+					System.out.println(message);
 			}
 			//send("You suck!");
 			//System.out.println(receive());

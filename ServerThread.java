@@ -138,7 +138,7 @@ public class ServerThread extends Thread{
 					for (i = 0; i < User.userNum; i++)
 						if (users[i].getName().equals(targetName)){
 							toClient.println("success");
-							userID = i;
+							targetUserID = i;
 							break;
 						}
 					if (i == User.userNum)
@@ -149,16 +149,22 @@ public class ServerThread extends Thread{
 				else if(command.equals("send")){
 					//write to mailbox[userID][targetUserID]
 					message = fromClient.readLine();
-					System.out.println(message);
-
+					System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
+					mailbox[userID][targetUserID] = message;
+					hasNewMessage[userID][targetUserID] = true;
 
 
 					command = "nothing";
 				}
 				else if(command.equals("receive")){
 					//read from mailbox[targetUserID][userID]
-					toClient.println("meesgae to you");
-					
+					if (hasNewMessage[targetUserID][userID]){
+						message = mailbox[targetUserID][userID];
+						hasNewMessage[targetUserID][userID] = false;
+						toClient.println(message);
+					}
+					else
+						toClient.println("");
 					command = "nothing";
 				}
 			}
