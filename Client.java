@@ -5,9 +5,10 @@ public class Client{
 
 	private BufferedReader fromServer, fromUser;
 	private PrintWriter toServer;
-	private InputStream str;
 	private final String serverIp = "127.0.0.1";
 	private final int serverPort = 12345;
+	private OutputStream os;
+	private InputStream is;
 
 	public void createSocket(){
 		Socket socket = new Socket();
@@ -18,9 +19,10 @@ public class Client{
 			System.out.println("create socket error");
 		}
 		try{
-			str = socket.getInputStream();
-			fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			toServer = new PrintWriter(socket.getOutputStream(), true);
+			is = socket.getInputStream();
+			os = socket.getOutputStream();
+			fromServer = new BufferedReader(new InputStreamReader(is));
+			toServer = new PrintWriter(os, true);
 			fromUser = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println(fromServer.readLine());
 		}
@@ -113,12 +115,34 @@ public class Client{
 		return message;
 	}
 
+	public void sendFile(String filename){
+		try{
+			System.out.println("sending file " + filename + "...");
+
+			toServer.println("sendFile");
+			File file = new File(filename);
+			int filesize = (int)file.length();
+			toServer.println(filename);
+			toServer.println(filesize);
+
+			byte[] buffer = new byte[filesize];
+			FileInputStream fin = new FileInputStream(file);
+			BufferedInputStream bin = new BufferedInputStream(fin);
+			bin.read(buffer, 0, buffer.length);
+			os.write(buffer, 0, filesize);
+			os.flush();
+		}
+		catch (Exception e){
+			System.out.println("send file error");
+		}
+	}
 	public void run(){
 		createSocket();
 
 		boolean isLoginOrRegister = false;
 		String command, name, password;
 		try {
+			
 			while(!isLoginOrRegister){
 				System.out.print("login or register: ");
 				command = fromUser.readLine();
@@ -145,6 +169,7 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
+
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -153,7 +178,9 @@ public class Client{
 					break;
 				}
 			}
+			
 
+			sendFile("old.jpg");
 			String message;
 			while (true){
 				if (fromUser.ready()){
