@@ -7,6 +7,11 @@ public class Server{
 	public final static String serverIp = "127.0.0.1";
 	public final static int serverPort = 12345;
 
+	public static void main(String argv[]){
+		Server server = new Server();
+		server.run();
+	}
+
 	private void createSocket(){
 		try{
 			InetAddress ip = InetAddress.getByName(serverIp);

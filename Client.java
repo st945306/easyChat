@@ -10,6 +10,11 @@ public class Client{
 	private OutputStream os;
 	private InputStream is;
 
+	public static void main(String argv[]){
+		Client client = new Client();
+		client.run();
+	}
+
 	public void createSocket(){
 		Socket socket = new Socket();
 		try{
@@ -21,8 +26,8 @@ public class Client{
 		try{
 			is = socket.getInputStream();
 			os = socket.getOutputStream();
-			fromServer = new BufferedReader(new InputStreamReader(is));
-			toServer = new PrintWriter(os, true);
+			fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			toServer = new PrintWriter(socket.getOutputStream(), true);
 			fromUser = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println(fromServer.readLine());
 		}
@@ -129,6 +134,7 @@ public class Client{
 			FileInputStream fin = new FileInputStream(file);
 			BufferedInputStream bin = new BufferedInputStream(fin);
 			bin.read(buffer, 0, buffer.length);
+
 			os.write(buffer, 0, filesize);
 			os.flush();
 		}
@@ -142,7 +148,7 @@ public class Client{
 		boolean isLoginOrRegister = false;
 		String command, name, password;
 		try {
-			
+			/*
 			while(!isLoginOrRegister){
 				System.out.print("login or register: ");
 				command = fromUser.readLine();
@@ -168,7 +174,7 @@ public class Client{
 			}
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
-
+			
 
 			while (true){
 				System.out.print("Who do you want to chat with? ");
@@ -178,12 +184,20 @@ public class Client{
 					break;
 				}
 			}
-			
+	*/		
+	//		selectTarget("Nicky");
 
-			sendFile("old.jpg");
+/*
+			toServer.println("111");
+			toServer.println("222");
+			System.out.println(fromServer.readLine());
+*/
+//			sendFile("1.txt");
+
 			String message;
 			while (true){
 				if (fromUser.ready()){
+					System.out.println("here");
 					message = fromUser.readLine();
 					send(message);
 				}
