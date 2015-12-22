@@ -173,7 +173,7 @@ public class ServerThread extends Thread{
 					int filesize = Integer.parseInt(fromClient.readLine());
 
 					byte[] buffer = new byte[filesize];
-					FileOutputStream fout = new FileOutputStream("new.jpg");
+					FileOutputStream fout = new FileOutputStream("file2");
 					BufferedOutputStream bout = new BufferedOutputStream(fout);
 
 					int byteRead = 0;

@@ -5,7 +5,7 @@ public class Client{
 
 	private BufferedReader fromServer, fromUser;
 	private PrintWriter toServer;
-	private final String serverIp = "192.168.0.101";
+	private final String serverIp = "140.112.30.34";
 	private final int serverPort = 12345;
 	private int userID;
 	private InputStream is;
@@ -209,7 +209,7 @@ public class Client{
 			toServer.println("222");
 			System.out.println(fromServer.readLine());
 */
-			sendFile("old.jpg");
+			sendFile("file");
 
 			String message;
 			while (true){

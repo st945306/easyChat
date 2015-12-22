@@ -4,7 +4,7 @@ import java.net.*;
 public class Server{
 
 	private ServerSocket serverSocket;
-	public final static String serverIp = "127.0.0.1";
+	public final static String serverIp = "140.112.30.34";
 	public final static int serverPort = 12345;
 
 	public static void main(String argv[]){
