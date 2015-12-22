@@ -5,7 +5,7 @@ public class Client{
 
 	private BufferedReader fromServer, fromUser;
 	private PrintWriter toServer;
-	private final String serverIp = "127.0.0.1";
+	private final String serverIp = "192.168.0.101";
 	private final int serverPort = 12345;
 	private int userID;
 	private InputStream is;
@@ -147,6 +147,9 @@ public class Client{
 
 			os.write(buffer, 0, filesize);
 			os.flush();
+
+			bin.close();
+			fin.close();
 		}
 		catch (Exception e){
 			System.out.println("send file error");

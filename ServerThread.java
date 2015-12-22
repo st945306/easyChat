@@ -184,6 +184,8 @@ public class ServerThread extends Thread{
 						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
 					}
 					bout.flush();
+					bout.close();
+					fout.close();
 					System.out.format("file %s: %d bytes received%n", filename, filesize);
 
 					command = "nothing";
