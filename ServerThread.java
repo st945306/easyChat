@@ -4,6 +4,7 @@ import java.net.*;
 public class ServerThread extends Thread{
 
 	private static final int MAXUSER = 30;
+	private static final int MAXFILESIZE = 2147483647;
 	private static User[] users = new User[MAXUSER];
 	private static String[][] mailbox = new String[MAXUSER][MAXUSER];
 	private static boolean[][] hasNewMessage = new boolean[MAXUSER][MAXUSER];
@@ -11,6 +12,8 @@ public class ServerThread extends Thread{
 	private PrintWriter toClient;
 	private BufferedReader fromClient;
 	private int userID, targetUserID;
+	private OutputStream os;
+	private InputStream is;
 
 	private void readUserData(){
 		User.userNum = 0;
@@ -144,7 +147,6 @@ public class ServerThread extends Thread{
 					if (i == User.userNum)
 						toClient.println("failed");
 					command = "nothing";
-
 				}
 				else if(command.equals("send")){
 					//write to mailbox[userID][targetUserID]
@@ -167,28 +169,22 @@ public class ServerThread extends Thread{
 						toClient.println("");
 					command = "nothing";
 				}
-
 				else if(command.equals("sendFile")){
 					String filename = fromClient.readLine();
 					int filesize = Integer.parseInt(fromClient.readLine());
 
 					byte[] buffer = new byte[filesize];
-					FileOutputStream fout = new FileOutputStream("2.txt");
+					FileOutputStream fout = new FileOutputStream("new.jpg");
 					BufferedOutputStream bout = new BufferedOutputStream(fout);
 
-					System.out.format("file %s: %d bytes received%n", filename, filesize);
-
-
 					for (int i = 0; i < filesize; i++){
-						System.out.println("here");
 						is.read(buffer, i, 1);
 						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
 					}
 
-
-
 					bout.write(buffer, 0, buffer.length);
 					bout.flush();
+					System.out.format("file %s: %d bytes received%n", filename, filesize);
 
 					command = "nothing";
 					return;
@@ -199,7 +195,6 @@ public class ServerThread extends Thread{
 
 					command = "nothing";
 				}
-
 			}
 			catch(Exception e){
 				System.out.println("chat error");
@@ -210,17 +205,15 @@ public class ServerThread extends Thread{
 
 	public void run(){
 		try{
-
 			os = socket.getOutputStream();
 			is = socket.getInputStream();
 
-			toClient = new PrintWriter(socket.getOutputStream(), true);
-
-			InputStreamReader isr = new InputStreamReader(socket.getInputStream());
+			toClient = new PrintWriter(os, true);
+			InputStreamReader isr = new InputStreamReader(is);
 			fromClient = new BufferedReader(isr);
 
 			toClient.println("Welcome to easyChat!");
-		//	loginOrRegister();	//will only return when user successfully login or register
+			loginOrRegister();	//will only return when user successfully login or register
 			startChat();
 		}
 		catch(Exception e){
