@@ -176,8 +176,11 @@ public class ServerThread extends Thread{
 					FileOutputStream fout = new FileOutputStream("new.jpg");
 					BufferedOutputStream bout = new BufferedOutputStream(fout);
 
-					for (int i = 0; i < filesize; i++){
-						is.read(buffer, i, 1);
+					int byteRead = 0;
+					for (int i = 0; i < filesize;){
+						byteRead = is.read(buffer, 0, filesize);
+						bout.write(buffer, 0, byteRead);
+						i += byteRead;
 						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
 					}
 
