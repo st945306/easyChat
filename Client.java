@@ -134,6 +134,9 @@ public class Client{
 			FileInputStream fin = new FileInputStream(file);
 			BufferedInputStream bin = new BufferedInputStream(fin);
 			bin.read(buffer, 0, buffer.length);
+
+			os.flush();
+
 			os.write(buffer, 0, filesize);
 			os.flush();
 		}
@@ -185,7 +188,7 @@ public class Client{
 			}
 			
 
-			sendFile("old.jpg");
+		//	sendFile("old.jpg");
 			String message;
 			while (true){
 				if (fromUser.ready()){
