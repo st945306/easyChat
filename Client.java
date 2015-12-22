@@ -7,8 +7,9 @@ public class Client{
 	private PrintWriter toServer;
 	private final String serverIp = "127.0.0.1";
 	private final int serverPort = 12345;
-	private OutputStream os;
+	private int userID;
 	private InputStream is;
+	private OutputStream os;
 
 	public static void main(String argv[]){
 		Client client = new Client();
@@ -24,8 +25,6 @@ public class Client{
 			System.out.println("create socket error");
 		}
 		try{
-			is = socket.getInputStream();
-			os = socket.getOutputStream();
 			fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			toServer = new PrintWriter(socket.getOutputStream(), true);
 			fromUser = new BufferedReader(new InputStreamReader(System.in));
@@ -42,26 +41,37 @@ public class Client{
 			toServer.println("login");
 			toServer.println(name);
 			toServer.println(password);
-			result = fromServer.readLine();
+			userID = Integer.parseInt(fromServer.readLine());
 		}
 		catch(Exception e){
 			System.out.println("client send msg error");
 		}
-		return (result.equals("success")) ? true : false;
+		return (userID >= 0);
 	}
 
 	public boolean register(String name, String password){
-		String result = new String();
 		try{
 			toServer.println("register");
 			toServer.println(name);
 			toServer.println(password);
-			result = fromServer.readLine();
+			userID = Integer.parseInt(fromServer.readLine());
 		}
 		catch(Exception e){
 			System.out.println("client send msg error");
 		}
-		return (result.equals("success")) ? true : false;
+		return (userID >= 0);
+	}
+
+	public void createFileSocket(){
+		try{
+			fromServer.readLine();	//wait until server open the socket
+			Socket fileSocket = new Socket(serverIp, 10000 + userID);
+			is = fileSocket.getInputStream();
+			os = fileSocket.getOutputStream();
+		}
+		catch(Exception e){
+			System.out.println("create file socket error");
+		}
 	}
 
 	public int checkOnline(String targetName){
@@ -123,8 +133,8 @@ public class Client{
 	public void sendFile(String filename){
 		try{
 			System.out.println("sending file " + filename + "...");
-
 			toServer.println("sendFile");
+
 			File file = new File(filename);
 			int filesize = (int)file.length();
 			toServer.println(filename);
@@ -148,7 +158,8 @@ public class Client{
 		boolean isLoginOrRegister = false;
 		String command, name, password;
 		try {
-			/*
+			
+			// login or register
 			while(!isLoginOrRegister){
 				System.out.print("login or register: ");
 				command = fromUser.readLine();
@@ -172,9 +183,12 @@ public class Client{
 					else
 						System.out.println("registered failed");
 			}
+			// create fileSocket
+			createFileSocket();
+
+			// check online
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
-			
 
 			while (true){
 				System.out.print("Who do you want to chat with? ");
@@ -184,7 +198,7 @@ public class Client{
 					break;
 				}
 			}
-	*/		
+		
 	//		selectTarget("Nicky");
 
 /*
@@ -192,12 +206,11 @@ public class Client{
 			toServer.println("222");
 			System.out.println(fromServer.readLine());
 */
-//			sendFile("1.txt");
+			sendFile("old.jpg");
 
 			String message;
 			while (true){
 				if (fromUser.ready()){
-					System.out.println("here");
 					message = fromUser.readLine();
 					send(message);
 				}

@@ -11,8 +11,8 @@ public class ServerThread extends Thread{
 	private PrintWriter toClient;
 	private BufferedReader fromClient;
 	private int userID, targetUserID;
-	private OutputStream os;
 	private InputStream is;
+	private OutputStream os;
 
 	private void readUserData(){
 		User.userNum = 0;
@@ -58,14 +58,14 @@ public class ServerThread extends Thread{
 				for (int i = 0; i < User.userNum; i++){
 					if (users[i].getName().equals(name) && 
 						users[i].getPassword().equals(password)){
-						toClient.println("success");
+						toClient.println(i);
 						users[i].setOnline();
 						userID = i;
 						return;
 					}
 				}
 				System.out.println("wrong name or password");
-				toClient.println("failed");
+				toClient.println(-1);
 			}
 			else if (command.equals("register")){
 				System.out.println("register");
@@ -73,7 +73,7 @@ public class ServerThread extends Thread{
 				for (i = 0; i < User.userNum; i++)
 					if (users[i].getName().equals(name)){
 						System.out.println("name has already been registered");
-						toClient.println("failed");
+						toClient.println(-1);
 						break;
 					}
 				if (i != User.userNum)
@@ -95,7 +95,7 @@ public class ServerThread extends Thread{
 					System.out.println("server write user.dat error");
 				}
 				System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
-				toClient.println("success");
+				toClient.println(id);
 				userID = id;
 				return;
 			}
@@ -172,14 +172,11 @@ public class ServerThread extends Thread{
 					String filename = fromClient.readLine();
 					int filesize = Integer.parseInt(fromClient.readLine());
 
-
 					byte[] buffer = new byte[filesize];
-					FileOutputStream fout = new FileOutputStream("2.txt");
+					FileOutputStream fout = new FileOutputStream("new.jpg");
 					BufferedOutputStream bout = new BufferedOutputStream(fout);
 
-
 					for (int i = 0; i < filesize; i++){
-						System.out.println("here");
 						is.read(buffer, i, 1);
 						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
 					}
@@ -205,16 +202,21 @@ public class ServerThread extends Thread{
 
 	public void run(){
 		try{
-			os = socket.getOutputStream();
-			is = socket.getInputStream();
 
 			toClient = new PrintWriter(socket.getOutputStream(), true);
 			InputStreamReader isr = new InputStreamReader(socket.getInputStream());
 			fromClient = new BufferedReader(isr);
 
 			toClient.println("Welcome to easyChat!");
-//			loginOrRegister();	//will only return when user successfully login or register
+			loginOrRegister();	//will only return when user successfully login or register
 			
+			// create fileServerSocket
+			InetAddress ip = InetAddress.getByName(Server.serverIp);
+			ServerSocket fileServerSocket = new ServerSocket(10000 + userID, 50, ip);
+			toClient.println("done");
+			Socket fileSocket = fileServerSocket.accept();
+			is = fileSocket.getInputStream();
+			os = fileSocket.getOutputStream();
 	/*		
 			System.out.println(fromClient.readLine());
 			System.out.println(fromClient.readLine());
