@@ -183,8 +183,6 @@ public class ServerThread extends Thread{
 						i += byteRead;
 						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
 					}
-
-					bout.write(buffer, 0, buffer.length);
 					bout.flush();
 					System.out.format("file %s: %d bytes received%n", filename, filesize);
 
