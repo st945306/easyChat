@@ -5,10 +5,9 @@ public class Client{
 
 	private BufferedReader fromServer, fromUser;
 	private PrintWriter toServer;
+	private InputStream str;
 	private final String serverIp = "127.0.0.1";
 	private final int serverPort = 12345;
-	private OutputStream os;
-	private InputStream is;
 
 	public static void main(String argv[]){
 		Client client = new Client();
@@ -152,7 +151,9 @@ public class Client{
 		boolean isLoginOrRegister = false;
 		String command, name, password;
 		try {
+
 			/*
+
 			while(!isLoginOrRegister){
 				System.out.print("login or register: ");
 				command = fromUser.readLine();
@@ -179,7 +180,9 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
+
 			*/
+
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -188,9 +191,9 @@ public class Client{
 					break;
 				}
 			}
-			
 
 			sendFile("1.txt");
+
 
 
 			String message;
