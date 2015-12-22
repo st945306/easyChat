@@ -10,6 +10,11 @@ public class Client{
 	private OutputStream os;
 	private InputStream is;
 
+	public static void main(String argv[]){
+		Client client = new Client();
+		client.run();
+	}
+
 	public void createSocket(){
 		Socket socket = new Socket();
 		try{
