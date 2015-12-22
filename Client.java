@@ -26,8 +26,8 @@ public class Client{
 		try{
 			is = socket.getInputStream();
 			os = socket.getOutputStream();
-			fromServer = new BufferedReader(new InputStreamReader(is));
-			toServer = new PrintWriter(os, true);
+			fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			toServer = new PrintWriter(socket.getOutputStream(), true);
 			fromUser = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println(fromServer.readLine());
 		}
@@ -135,10 +135,12 @@ public class Client{
 			BufferedInputStream bin = new BufferedInputStream(fin);
 			bin.read(buffer, 0, buffer.length);
 
-			os.flush();
+		//	os.flush();
 
 			os.write(buffer, 0, filesize);
 			os.flush();
+		//	System.out.println(new String(buffer, 0));
+
 		}
 		catch (Exception e){
 			System.out.println("send file error");
@@ -150,7 +152,7 @@ public class Client{
 		boolean isLoginOrRegister = false;
 		String command, name, password;
 		try {
-			
+			/*
 			while(!isLoginOrRegister){
 				System.out.print("login or register: ");
 				command = fromUser.readLine();
@@ -177,7 +179,7 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
-
+			*/
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -188,7 +190,9 @@ public class Client{
 			}
 			
 
-		//	sendFile("old.jpg");
+			sendFile("1.txt");
+
+
 			String message;
 			while (true){
 				if (fromUser.ready()){

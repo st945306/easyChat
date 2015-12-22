@@ -174,17 +174,22 @@ public class ServerThread extends Thread{
 					int filesize = Integer.parseInt(fromClient.readLine());
 
 					byte[] buffer = new byte[filesize];
-					FileOutputStream fout = new FileOutputStream("new.jpg");
+					FileOutputStream fout = new FileOutputStream("2.txt");
 					BufferedOutputStream bout = new BufferedOutputStream(fout);
 
+					System.out.format("file %s: %d bytes received%n", filename, filesize);
+
+
 					for (int i = 0; i < filesize; i++){
+						System.out.println("here");
 						is.read(buffer, i, 1);
 						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
 					}
 
+
+
 					bout.write(buffer, 0, buffer.length);
 					bout.flush();
-					System.out.format("file %s: %d bytes received%n", filename, filesize);
 
 					command = "nothing";
 					return;
@@ -208,12 +213,12 @@ public class ServerThread extends Thread{
 			os = socket.getOutputStream();
 			is = socket.getInputStream();
 
-			toClient = new PrintWriter(os, true);
-			InputStreamReader isr = new InputStreamReader(is);
+			toClient = new PrintWriter(socket.getOutputStream(), true);
+			InputStreamReader isr = new InputStreamReader(socket.getInputStream());
 			fromClient = new BufferedReader(isr);
 
 			toClient.println("Welcome to easyChat!");
-			loginOrRegister();	//will only return when user successfully login or register
+		//	loginOrRegister();	//will only return when user successfully login or register
 			startChat();
 		}
 		catch(Exception e){
