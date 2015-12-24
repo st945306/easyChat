@@ -1,34 +1,72 @@
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class Server{
 
 	private ServerSocket serverSocket;
-	public final static String serverIp = "140.112.30.34";
-	public final static int serverPort = 12345;
+private String serverConfig;
+	public static String serverIP;
+	public static int serverPort; //assume the port is always correct
 
-	public static void main(String argv[]){
+	Server() {
+		try {
+			FileReader fr = new FileReader("./server_config.dat");
+			BufferedReader br = new BufferedReader(fr);
+			serverIP = br.readLine();
+			serverPort = Integer.valueOf(br.readLine());
+		}
+		catch(IOException e) {
+			System.out.println("read server config error");
+			System.out.println("server halts");
+			System.exit(1);
+			//I don't know what number should be used here
+		}
+	}
+
+	public static void main(String args[]) {
 		Server server = new Server();
 		server.run();
 	}
 
-	private void createSocket(){
-		try{
-			InetAddress ip = InetAddress.getByName(serverIp);
+	public void changeServerIP() {
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("> ");
+		serverIP = scanner.nextLine();
+		try {
+			FileWriter fw = new FileWriter("./server_config.dat");
+			fw.write(serverIP + "\n" + serverPort);
+			fw.flush();
+			fw.close();
+		}
+		catch(Exception e) {
+			System.out.println("error occurs while writing server config");
+		}
+		System.out.println("IP has changed to " + serverIP);
+		System.out.println("try to open the server socket");
+		createSocket();
+	}
+
+	private void createSocket() {
+		try {
+			InetAddress ip = InetAddress.getByName(serverIP);
 			serverSocket = new ServerSocket(serverPort, 50, ip);
 		}
-		catch(Exception e){
+		catch(Exception e) {
 			System.out.println("open server socket error");
+			System.out.println("please assign a valid IP address");
+			changeServerIP();
 		}
 	}
 
-	private void listen(){
+	private void listen() {
 		Socket clientSocket = new Socket();
-		while (true){
-			try{
+		System.out.println("server starts listening");
+		while(true) {
+			try {
 				clientSocket = serverSocket.accept();
 			}
-			catch(Exception e){
+			catch(Exception e) {
 				System.out.println("accept client socket error");
 			}
 			ServerThread serverThread = new ServerThread(clientSocket);
@@ -36,7 +74,7 @@ public class Server{
 		}
 	}
 
-	public void run(){
+	public void run() {
 		createSocket();
 		listen();
 	}

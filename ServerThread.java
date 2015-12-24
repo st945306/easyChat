@@ -214,7 +214,7 @@ public class ServerThread extends Thread{
 			loginOrRegister();	//will only return when user successfully login or register
 			
 			// create fileServerSocket
-			InetAddress ip = InetAddress.getByName(Server.serverIp);
+			InetAddress ip = InetAddress.getByName(Server.serverIP);
 			ServerSocket fileServerSocket = new ServerSocket(10000 + userID, 50, ip);
 			toClient.println("done");
 			Socket fileSocket = fileServerSocket.accept();
