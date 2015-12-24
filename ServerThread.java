@@ -1,3 +1,5 @@
+// change the function name of loginOrRegister?
+// cause it has a STOP function now
 import java.io.*;
 import java.net.*;
 
@@ -98,6 +100,10 @@ public class ServerThread extends Thread{
 				toClient.println(id);
 				userID = id;
 				return;
+			}
+			else if(command.equals("stop")) {
+				System.out.println("server halts");
+				System.exit(0);
 			}
 		}
 	}
