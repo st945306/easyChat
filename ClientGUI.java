@@ -19,6 +19,7 @@ public class ClientGUI {
 	Client client;
 	ClientListen clientlisten;
 	public static Boolean isListening = false;
+	public static Boolean isSending = false;
 	JFrame startFrame, selectTargetFrame, sendAndListenFrame;
 	JTextField usernameTextField, selectUserTextField, msgToSend;
 	JPasswordField passwordField;
@@ -248,7 +249,9 @@ public class ClientGUI {
 		public void actionPerformed(ActionEvent event) {
 			String msg = msgToSend.getText();
 			msgToDisplay.append("Me: " + msg + "\n");
+			isSending = true;
 			client.send(msg);
+			isSending = false;
 			msgToSend.setText("");
 		}
 	}

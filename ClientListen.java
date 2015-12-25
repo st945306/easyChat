@@ -16,6 +16,8 @@ public class ClientListen extends Thread {
 	public void run() {
 		System.out.println("Client listen starts");
 		while(clientGUI.isListening) {
+			if(clientGUI.isSending)
+				continue;
 			msg = client.receive();
 			if(msg.length() == 0)
 				continue;
