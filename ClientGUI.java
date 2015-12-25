@@ -20,6 +20,7 @@ public class ClientGUI {
 	ClientListen clientlisten;
 	public static Boolean isListening = false;
 	public static Boolean isSending = false;
+	Boolean msgPopup;
 	JFrame startFrame, selectTargetFrame, sendAndListenFrame;
 	JTextField usernameTextField, selectUserTextField, msgToSend;
 	JPasswordField passwordField;
@@ -223,14 +224,16 @@ public class ClientGUI {
 		public void keyPressed(KeyEvent event) {}
 		public void keyTyped(KeyEvent event) {}
 		public void keyReleased(KeyEvent event) {
-			if(event.getKeyCode() == KeyEvent.VK_ENTER) {
+			if(event.getKeyCode() == KeyEvent.VK_ENTER && !msgPopup) {
 				if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
 					client.createFileSocket();
 					selectTargetFrame.setVisible(true);
 					startFrame.setVisible(false);
 				}
 				else {//login fail
+					msgPopup = true;
 					JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
+					msgPopup = false;
 				}
 			}
 		}
@@ -244,7 +247,9 @@ public class ClientGUI {
 				startFrame.setVisible(false);
 			}
 			else {//login fail
+				msgPopup = true;
 				JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
+				msgPopup = false;
 			}
 		}
 	}
@@ -253,14 +258,21 @@ public class ClientGUI {
 		public void keyPressed(KeyEvent event) {}
 		public void keyTyped(KeyEvent event) {}
 		public void keyReleased(KeyEvent event) {
-			if(client.selectTarget(selectUserTextField.getText())) {
-				isListening = true;
-				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
-				clientlisten.start();
-				sendAndListenFrame.setTitle(selectUserTextField.getText());
-				selectUserTextField.setText("");
-				sendAndListenFrame.setVisible(true);
-				selectTargetFrame.setVisible(false);
+			if(event.getKeyCode() == KeyEvent.VK_ENTER && !msgPopup) {
+				if(client.selectTarget(selectUserTextField.getText())) {
+					isListening = true;
+					clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
+					clientlisten.start();
+					sendAndListenFrame.setTitle(selectUserTextField.getText());
+					selectUserTextField.setText("");
+					sendAndListenFrame.setVisible(true);
+					selectTargetFrame.setVisible(false);
+				}
+				else { //target does not exist
+					msgPopup = true;
+					JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
+					msgPopup = false;
+				}
 			}
 		}
 	}
@@ -277,7 +289,9 @@ public class ClientGUI {
 				selectTargetFrame.setVisible(false);
 			}
 			else { //target does not exist
+				msgPopup = true;
 				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
+				msgPopup = false;
 			}
 		}
 	}
@@ -286,7 +300,7 @@ public class ClientGUI {
 		public void keyPressed(KeyEvent event) {}
 		public void keyTyped(KeyEvent event) {}
 		public void keyReleased(KeyEvent event) {
-			if(client.selectTarget(selectUserTextField.getText())) {
+			if(event.getKeyCode() == KeyEvent.VK_ENTER && !msgPopup) {
 				String msg = msgToSend.getText();
 				msgToDisplay.append("Me: " + msg + "\n");
 				isSending = true;
