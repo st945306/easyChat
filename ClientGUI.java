@@ -20,6 +20,7 @@ public class ClientGUI {
 	ClientListen clientlisten;
 	public static Boolean isListening = false;
 	public static Boolean isSending = false;
+	Boolean isLogin = false;
 	JFrame startFrame, selectTargetFrame, sendAndListenFrame;
 	JTextField usernameTextField, selectUserTextField, msgToSend;
 	JPasswordField passwordField;
@@ -53,6 +54,7 @@ public class ClientGUI {
 		btnLogIn.setFont(new Font("Arial", Font.PLAIN, 16));
 		registration.setFont(new Font("Arial", Font.PLAIN, 16));
 
+		startFrame.addWindowListener(new closeHandler());
 		usernameTextField.addActionListener(new enterlogInListener());
 		passwordField.addActionListener(new enterlogInListener());
 		btnLogIn.addActionListener(new logInListener());
@@ -104,7 +106,6 @@ public class ClientGUI {
 		);
 
 		startFrame.pack();
-		startFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         startFrame.setResizable(false);
 		startFrame.setLocationRelativeTo(null);
 		usernameTextField.requestFocus();
@@ -119,6 +120,7 @@ public class ClientGUI {
 		selectUserTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
+		selectTargetFrame.addWindowListener(new closeHandler());
 		btnSelectUser.addActionListener(new selectUserListener());
 		selectUserTextField.addActionListener(new enterSelectUserListener());
 
@@ -151,7 +153,6 @@ public class ClientGUI {
 		);
 
 		selectTargetFrame.pack();
-		selectTargetFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         selectTargetFrame.setResizable(false);
 		selectTargetFrame.setLocationRelativeTo(null);
 		selectTargetFrame.setVisible(false);
@@ -176,6 +177,7 @@ public class ClientGUI {
 		btnSendMsg.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnReSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
+		sendAndListenFrame.addWindowListener(new closeHandler());
 		btnSendMsg.addActionListener(new sendMsgListener());
 		msgToSend.addActionListener(new enterSendMsgListener());
 		btnReSelectUser.addActionListener(new reSelectUserListener());
@@ -214,15 +216,24 @@ public class ClientGUI {
 		);
 
 		sendAndListenFrame.pack();
-		sendAndListenFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         sendAndListenFrame.setResizable(false);
 		sendAndListenFrame.setLocationRelativeTo(null);
 		sendAndListenFrame.setVisible(false);
 	}
 
+	class closeHandler extends WindowAdapter{
+		public void windowClosing(WindowEvent event) {
+			System.out.println("client logout");
+			if(isLogin)
+				client.logout();
+			System.exit(0);
+		}
+	}
+
 	class enterlogInListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
+				isLogin = true;
 				client.createFileSocket();
 				selectUserTextField.requestFocus();
 				selectTargetFrame.setVisible(true);
@@ -237,6 +248,7 @@ public class ClientGUI {
 	class logInListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
+				isLogin = true;
 				client.createFileSocket();
 				selectUserTextField.requestFocus();
 				selectTargetFrame.setVisible(true);
