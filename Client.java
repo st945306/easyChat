@@ -108,6 +108,47 @@ public class Client{
 		}
 	}
 
+	public boolean createChatRoom(String chatRoomName){
+		String result = new String();
+		try {
+			toServer.println("createChatRoom");
+			toServer.println(chatRoomName);
+			result = fromServer.readLine();
+		}
+		catch(Exception e){
+			System.out.println("create chat room error");
+		}
+		if (result.equals("success")){
+			System.out.println("chat room created");
+			return true;
+		}
+		else{
+			System.out.println("chat room name exist");
+			return false;
+		}
+	}
+
+	public boolean enterChatRoom(String chatRoomName){
+		String reply = new String();
+		try{
+			toServer.println("enterChatRoom");
+			toServer.println(chatRoomName);
+			reply = fromServer.readLine();
+		}
+		catch(Exception e){
+			System.out.println("enter chat room error");
+		}
+		if (reply.equals("success")){
+			System.out.println("entered the chat room " + chatRoomName);
+			return true;
+		}
+		else{
+			System.out.println("chat room does not exist");
+			return false;
+		}
+
+	}
+
 	public void send(String message){
 		try{
 			toServer.println("send");
@@ -198,6 +239,10 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
+			createChatRoom("Yo man");
+			enterChatRoom("Yo man");
+
+/*
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -206,6 +251,8 @@ public class Client{
 					break;
 				}
 			}
+
+
 		
 	//		selectTarget("Nicky");
 

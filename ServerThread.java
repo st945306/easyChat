@@ -5,42 +5,26 @@ import java.net.*;
 
 public class ServerThread extends Thread{
 
-	private static final int MAXUSER = 30;
-	private static User[] users = new User[MAXUSER];
-	private static String[][] mailbox = new String[MAXUSER][MAXUSER];
-	private static boolean[][] hasNewMessage = new boolean[MAXUSER][MAXUSER];
+	private static final int MAXUSERNUM = 30;
+	private static final int MAXCHATROOMNUM = 30;
+	private static User[] users = new User[MAXUSERNUM];
+	private static ChatRoom[] chatRooms = new ChatRoom[MAXCHATROOMNUM];
+	private static String[][] mailbox = new String[MAXUSERNUM][MAXUSERNUM];
+	private static boolean[][] hasNewMessage = new boolean[MAXUSERNUM][MAXUSERNUM];
 	private Socket socket, fileSocket;
 	private ServerSocket fileServerSocket;
 	private PrintWriter toClient;
 	private BufferedReader fromClient;
-	private int userID, targetUserID;
+	private int userID, targetUserID, chatRoomID;
 	private InputStream is;
 	private OutputStream os;
+	private boolean inChatRoom = false;
 
-	private void readUserData(){
-		User.userNum = 0;
-		try{
-			FileReader fr = new FileReader("./user.dat");
-			BufferedReader br = new BufferedReader(fr);
-			int id;
-			String name, password;
-			while (br.ready()){
-				id = Integer.parseInt(br.readLine());
-				name = br.readLine();
-				password = br.readLine();
-				users[id] = new User(id, name, password, false);
-				users[id].printUserInfo();
-				User.userNum++;
-			}
-		}
-		catch(IOException e){
-			System.out.println("read user data error");
-		}
-	}
 
-	public ServerThread(Socket socket){
+	public ServerThread(Socket socket, User[] users, ChatRoom[] chatRooms){
 		this.socket = socket;
-		readUserData();
+		this.users = users;
+		this.chatRooms = chatRooms;
 	}
 	
 	private void loginOrRegister(){
@@ -118,6 +102,8 @@ public class ServerThread extends Thread{
 		System.out.println(userID);
 		System.out.println(hasNewMessage[0][userID]);
 
+
+
 		while(true){
 			try{
 				if (fromClient.ready())
@@ -148,35 +134,99 @@ public class ServerThread extends Thread{
 						if (users[i].getName().equals(targetName)){
 							toClient.println("success");
 							targetUserID = i;
+							inChatRoom = false;
 							break;
 						}
 					if (i == User.userNum)
 						toClient.println("failed");
 					command = "nothing";
 				}
+				else if (command.equals("createChatRoom")){
+					String chatRoomName = fromClient.readLine();
+					int i;
+					for (i = 0; i < ChatRoom.chatRoomNum; i++)
+						if (chatRoomName.equals(chatRooms[i].getName())){
+							System.out.println("chat room exists");
+							toClient.println("failed");
+							break;
+						}
+					if (i == ChatRoom.chatRoomNum){
+						chatRooms[ChatRoom.chatRoomNum] = new ChatRoom(chatRoomName);
+						System.out.println("chat room " + chatRoomName + " is created");
+						toClient.println("success");
+					}
+					command = "nothing";
+				}
+				else if (command.equals("enterChatRoom")){
+					//change chatRoomID
+					String chatRoomName = fromClient.readLine();
+					System.out.println("entering " + chatRoomName + "...");
+					int i;
+					for (i = 0; i < ChatRoom.chatRoomNum; i++)
+						if (chatRooms[i].getName().equals(chatRoomName)){
+							toClient.println("success");
+							chatRoomID = i;
+							chatRooms[i].addMember(userID);
+							chatRooms[i].printInfo();
+							inChatRoom = true;
+							break;
+						}
+					if (i == ChatRoom.chatRoomNum)
+						toClient.println("failed");
+					command = "nothing";
+				}
 				else if(command.equals("send")){
 					//write to mailbox[userID][targetUserID]
 					message = fromClient.readLine();
-					System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
-					if (hasNewMessage[userID][targetUserID]){
-						mailbox[userID][targetUserID] += "\n";
-						mailbox[userID][targetUserID] += message;
+					if (!inChatRoom){
+						System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
+						if (hasNewMessage[userID][targetUserID]){
+							mailbox[userID][targetUserID] += "\n";
+							mailbox[userID][targetUserID] += message;
+						}
+						else {
+							mailbox[userID][targetUserID] = message;
+							hasNewMessage[userID][targetUserID] = true;
+						}
 					}
 					else {
-						mailbox[userID][targetUserID] = message;
-						hasNewMessage[userID][targetUserID] = true;
+						int[] memberIDs = chatRooms[chatRoomID].memberIDs;
+						for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
+							System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
+							if (hasNewMessage[userID][memberIDs[i]]){
+								mailbox[userID][memberIDs[i]] += "\n";
+								mailbox[userID][memberIDs[i]] += message;
+							}
+							else {
+								mailbox[userID][memberIDs[i]] = message;
+								hasNewMessage[userID][memberIDs[i]] = true;
+							}
+						}
+
 					}
 					command = "nothing";
 				}
 				else if(command.equals("receive")){
 					//read from mailbox[targetUserID][userID]
-					if (hasNewMessage[targetUserID][userID]){
-						message = mailbox[targetUserID][userID];
-						hasNewMessage[targetUserID][userID] = false;
+					if (!inChatRoom){
+						if (hasNewMessage[targetUserID][userID]){
+							message = mailbox[targetUserID][userID];
+							hasNewMessage[targetUserID][userID] = false;
+							toClient.println(message);
+						}
+						else
+							toClient.println("");
+					}
+					else {
+						int[] memberIDs = chatRooms[chatRoomID].memberIDs;
+						message = "";
+						for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++)
+							if (hasNewMessage[memberIDs[i]][userID]){
+								message += mailbox[memberIDs[i]][userID];
+								hasNewMessage[memberIDs[i]][userID] = false;
+							}
 						toClient.println(message);
 					}
-					else
-						toClient.println("");
 					command = "nothing";
 				}
 				else if(command.equals("sendFile")){
@@ -215,8 +265,9 @@ public class ServerThread extends Thread{
 					fileServerSocket.close();
 					socket.close();
 					users[userID].setOffline();
-					break;
+					return;
 				}
+
 			}
 			catch(Exception e){
 				System.out.println("chat error");
@@ -227,14 +278,13 @@ public class ServerThread extends Thread{
 
 	public void run(){
 		try{
-
 			toClient = new PrintWriter(socket.getOutputStream(), true);
 			InputStreamReader isr = new InputStreamReader(socket.getInputStream());
 			fromClient = new BufferedReader(isr);
 
 			toClient.println("Welcome to easyChat!");
 			loginOrRegister();	//will only return when user successfully login or register
-			
+
 			// create fileServerSocket
 			InetAddress ip = InetAddress.getByName(Server.serverIP);
 			fileServerSocket = new ServerSocket(10000 + userID, 50, ip);
