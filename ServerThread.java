@@ -86,10 +86,6 @@ public class ServerThread extends Thread{
 				userID = id;
 				return;
 			}
-			else if(command.equals("stop")) {
-				System.out.println("server halts");
-				System.exit(0);
-			}
 		}
 	}
 
