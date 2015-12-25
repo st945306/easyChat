@@ -10,6 +10,7 @@ public class ServerThread extends Thread{
 	private static String[][] mailbox = new String[MAXUSER][MAXUSER];
 	private static boolean[][] hasNewMessage = new boolean[MAXUSER][MAXUSER];
 	private Socket socket, fileSocket;
+	private ServerSocket fileServerSocket;
 	private PrintWriter toClient;
 	private BufferedReader fromClient;
 	private int userID, targetUserID;
@@ -202,9 +203,14 @@ public class ServerThread extends Thread{
 					command = "nothing";
 				}
 				else if (command.equals("logout")){
-					//close all sockets, setOffline and kill the thread here
+					//close all sockets, setOffline
 					System.out.println("User " + users[userID].getName() + " logged out...");
-
+					is.close();
+					os.close();
+					fileSocket.close();
+					fileServerSocket.close();
+					socket.close();
+					users[userID].setOffline();
 					break;
 				}
 			}
@@ -227,9 +233,9 @@ public class ServerThread extends Thread{
 			
 			// create fileServerSocket
 			InetAddress ip = InetAddress.getByName(Server.serverIP);
-			ServerSocket fileServerSocket = new ServerSocket(10000 + userID, 50, ip);
+			fileServerSocket = new ServerSocket(10000 + userID, 50, ip);
 			toClient.println("done");
-			Socket fileSocket = fileServerSocket.accept();
+			fileSocket = fileServerSocket.accept();
 			is = fileSocket.getInputStream();
 			os = fileSocket.getOutputStream();
 	/*		
