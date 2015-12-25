@@ -221,102 +221,86 @@ public class ClientGUI {
 		sendAndListenFrame.setVisible(false);
 	}
 
+	void doLogin() {
+		if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
+			isLogin = true;
+			client.createFileSocket();
+			selectUserTextField.requestFocus();
+			selectTargetFrame.setVisible(true);
+			startFrame.setVisible(false);
+		}
+		else {//login fail
+			JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	void doSelectUser() {
+		if(client.selectTarget(selectUserTextField.getText())) {
+			isListening = true;
+			clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
+			clientlisten.start();
+			sendAndListenFrame.setTitle(selectUserTextField.getText());
+			selectUserTextField.setText("");
+			msgToSend.requestFocus();
+			sendAndListenFrame.setVisible(true);
+			selectTargetFrame.setVisible(false);
+		}
+		else { //target does not exist
+			JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	void doSend() {
+		String msg = msgToSend.getText();
+		msgToDisplay.append("Me: " + msg + "\n");
+		isSending = true;
+		client.send(msg);
+		isSending = false;
+		msgToSend.requestFocus();
+		msgToSend.setText("");
+	}
+
 	class closeHandler extends WindowAdapter{
 		public void windowClosing(WindowEvent event) {
+			if(isLogin) client.logout();
 			System.out.println("client logout");
-			if(isLogin)
-				client.logout();
 			System.exit(0);
 		}
 	}
 
 	class enterlogInListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
-				isLogin = true;
-				client.createFileSocket();
-				selectUserTextField.requestFocus();
-				selectTargetFrame.setVisible(true);
-				startFrame.setVisible(false);
-			}
-			else {//login fail
-				JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			doLogin();
 		}
 	}
 
 	class logInListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
-				isLogin = true;
-				client.createFileSocket();
-				selectUserTextField.requestFocus();
-				selectTargetFrame.setVisible(true);
-				startFrame.setVisible(false);
-			}
-			else {//login fail
-				JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			doLogin();
 		}
 	}
 
 	class enterSelectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if(client.selectTarget(selectUserTextField.getText())) {
-				isListening = true;
-				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
-				clientlisten.start();
-				sendAndListenFrame.setTitle(selectUserTextField.getText());
-				selectUserTextField.setText("");
-				msgToSend.requestFocus();
-				sendAndListenFrame.setVisible(true);
-				selectTargetFrame.setVisible(false);
-			}
-			else { //target does not exist
-				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			doSelectUser();
 		}
 	}
 
 	class selectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if(client.selectTarget(selectUserTextField.getText())) {
-				isListening = true;
-				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
-				clientlisten.start();
-				sendAndListenFrame.setTitle(selectUserTextField.getText());
-				selectUserTextField.setText("");
-				msgToSend.requestFocus();
-				sendAndListenFrame.setVisible(true);
-				selectTargetFrame.setVisible(false);
-			}
-			else { //target does not exist
-				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			doSelectUser();
 		}
 	}
 
 	class enterSendMsgListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			String msg = msgToSend.getText();
-			msgToDisplay.append("Me: " + msg + "\n");
-			isSending = true;
-			client.send(msg);
-			isSending = false;
-			msgToSend.requestFocus();
-			msgToSend.setText("");
+			doSend();
 		}
 	}
 
 	class sendMsgListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			String msg = msgToSend.getText();
-			msgToDisplay.append("Me: " + msg + "\n");
-			isSending = true;
-			client.send(msg);
-			isSending = false;
-			msgToSend.requestFocus();
-			msgToSend.setText("");
+			doSend();
 		}
 	}
 
