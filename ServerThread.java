@@ -39,6 +39,7 @@ public class ServerThread extends Thread{
 			}
 			catch (Exception e){
 				System.out.println("server login or register error");
+				return;
 			}
 			if (command.equals("login")){
 				System.out.println("login");
@@ -80,15 +81,12 @@ public class ServerThread extends Thread{
 				}
 				catch (Exception e){
 					System.out.println("server write user.dat error");
+					return;
 				}
 				System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
 				toClient.println(id);
 				userID = id;
 				return;
-			}
-			else if(command.equals("stop")) {
-				System.out.println("server halts");
-				System.exit(0);
 			}
 		}
 	}
@@ -271,6 +269,7 @@ public class ServerThread extends Thread{
 			}
 			catch(Exception e){
 				System.out.println("chat error");
+				return;
 			}
 		}
 	
@@ -303,6 +302,7 @@ public class ServerThread extends Thread{
 		}
 		catch(Exception e){
 			System.out.println("server send msg error");
+			return;
 		}
 	}
 }

@@ -262,8 +262,12 @@ public class ClientGUI {
 
 	class closeHandler extends WindowAdapter{
 		public void windowClosing(WindowEvent event) {
-			if(isLogin) client.logout();
-			System.out.println("client logout");
+			if(isListening)
+				isListening = false;
+			if(isLogin) {
+				client.logout();
+				System.out.println("client logout");
+			}
 			System.exit(0);
 		}
 	}
