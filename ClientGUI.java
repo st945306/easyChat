@@ -15,15 +15,17 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 public class ClientGUI {
+	static ClientGUI clientGUI;
 	Client client;
 	ClientListen clientlisten;
+	public static Boolean isListening = false;
 	JFrame startFrame, selectTargetFrame, sendAndListenFrame;
 	JTextField usernameTextField, selectUserTextField, msgToSend;
 	JPasswordField passwordField;
 	JTextArea msgToDisplay;
 
 	public static void main(String[] args) {
-		ClientGUI clientGUI = new ClientGUI();
+		clientGUI = new ClientGUI();
 		clientGUI.go();
 	}
 
@@ -228,7 +230,8 @@ public class ClientGUI {
 	class selectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if(client.selectTarget(selectUserTextField.getText())) {
-				clientlisten = new ClientListen(client, msgToDisplay);
+				isListening = true;
+				clientlisten = new ClientListen(client, clientGUI, msgToDisplay);
 				clientlisten.start();
 				sendAndListenFrame.setTitle(selectUserTextField.getText());
 				selectUserTextField.setText("");
@@ -252,6 +255,7 @@ public class ClientGUI {
 
 	class reSelectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
+			isListening = false;
 			selectTargetFrame.setVisible(true);
 			sendAndListenFrame.setVisible(false);
 		}
