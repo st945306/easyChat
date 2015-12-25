@@ -107,6 +107,7 @@ public class ClientGUI {
 		startFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         startFrame.setResizable(false);
 		startFrame.setLocationRelativeTo(null);
+		usernameTextField.requestFocus();
 		startFrame.setVisible(true);
 
 		//selectTargetFrame
@@ -176,7 +177,7 @@ public class ClientGUI {
 		btnReSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		btnSendMsg.addActionListener(new sendMsgListener());
-		btnSendMsg.addActionListener(new enterSendMsgListener());
+		msgToSend.addActionListener(new enterSendMsgListener());
 		btnReSelectUser.addActionListener(new reSelectUserListener());
 
 		GroupLayout sendAndListenLayout = new GroupLayout(sendAndListenFrame.getContentPane());
@@ -223,6 +224,7 @@ public class ClientGUI {
 		public void actionPerformed(ActionEvent event) {
 			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
 				client.createFileSocket();
+				selectUserTextField.requestFocus();
 				selectTargetFrame.setVisible(true);
 				startFrame.setVisible(false);
 			}
@@ -236,6 +238,7 @@ public class ClientGUI {
 		public void actionPerformed(ActionEvent event) {
 			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
 				client.createFileSocket();
+				selectUserTextField.requestFocus();
 				selectTargetFrame.setVisible(true);
 				startFrame.setVisible(false);
 			}
@@ -253,6 +256,7 @@ public class ClientGUI {
 				clientlisten.start();
 				sendAndListenFrame.setTitle(selectUserTextField.getText());
 				selectUserTextField.setText("");
+				msgToSend.requestFocus();
 				sendAndListenFrame.setVisible(true);
 				selectTargetFrame.setVisible(false);
 			}
@@ -270,6 +274,7 @@ public class ClientGUI {
 				clientlisten.start();
 				sendAndListenFrame.setTitle(selectUserTextField.getText());
 				selectUserTextField.setText("");
+				msgToSend.requestFocus();
 				sendAndListenFrame.setVisible(true);
 				selectTargetFrame.setVisible(false);
 			}
@@ -286,6 +291,7 @@ public class ClientGUI {
 			isSending = true;
 			client.send(msg);
 			isSending = false;
+			msgToSend.requestFocus();
 			msgToSend.setText("");
 		}
 	}
@@ -297,6 +303,7 @@ public class ClientGUI {
 			isSending = true;
 			client.send(msg);
 			isSending = false;
+			msgToSend.requestFocus();
 			msgToSend.setText("");
 		}
 	}
@@ -304,6 +311,7 @@ public class ClientGUI {
 	class reSelectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			isListening = false;
+			selectUserTextField.requestFocus();
 			selectTargetFrame.setVisible(true);
 			sendAndListenFrame.setVisible(false);
 		}
