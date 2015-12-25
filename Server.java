@@ -5,9 +5,14 @@ import java.util.Scanner;
 public class Server{
 
 	private ServerSocket serverSocket;
-private String serverConfig;
+	private String serverConfig;
 	public static String serverIP;
 	public static int serverPort; //assume the port is always correct
+
+	private final int MAXUSERNUM = 30;
+	private final int MAXCHATROOMNUM = 30;
+	private User[] users = new User[MAXUSERNUM];
+	private ChatRoom[] chatRooms = new ChatRoom[MAXCHATROOMNUM];
 
 	Server() {
 		try {
@@ -59,7 +64,30 @@ private String serverConfig;
 		}
 	}
 
+	private void readUserData(){
+		User.userNum = 0;
+		ChatRoom.chatRoomNum = 0;
+		try{
+			FileReader fr = new FileReader("./user.dat");
+			BufferedReader br = new BufferedReader(fr);
+			int id;
+			String name, password;
+			while (br.ready()){
+				id = Integer.parseInt(br.readLine());
+				name = br.readLine();
+				password = br.readLine();
+				users[id] = new User(id, name, password, false);
+				users[id].printUserInfo();
+				User.userNum++;
+			}
+		}
+		catch(IOException e){
+			System.out.println("read user data error");
+		}
+	}
+
 	private void listen() {
+		readUserData();
 		Socket clientSocket = new Socket();
 		System.out.println("server starts listening");
 		while(true) {
@@ -69,7 +97,7 @@ private String serverConfig;
 			catch(Exception e) {
 				System.out.println("accept client socket error");
 			}
-			ServerThread serverThread = new ServerThread(clientSocket);
+			ServerThread serverThread = new ServerThread(clientSocket, users, chatRooms);
 			serverThread.start();
 		}
 	}

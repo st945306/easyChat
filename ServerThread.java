@@ -20,30 +20,11 @@ public class ServerThread extends Thread{
 	private OutputStream os;
 	private boolean inChatRoom = false;
 
-	private void readUserData(){
-		User.userNum = 0;
-		try{
-			FileReader fr = new FileReader("./user.dat");
-			BufferedReader br = new BufferedReader(fr);
-			int id;
-			String name, password;
-			while (br.ready()){
-				id = Integer.parseInt(br.readLine());
-				name = br.readLine();
-				password = br.readLine();
-				users[id] = new User(id, name, password, false);
-				users[id].printUserInfo();
-				User.userNum++;
-			}
-		}
-		catch(IOException e){
-			System.out.println("read user data error");
-		}
-	}
 
-	public ServerThread(Socket socket){
+	public ServerThread(Socket socket, User[] users, ChatRoom[] chatRooms){
 		this.socket = socket;
-		readUserData();
+		this.users = users;
+		this.chatRooms = chatRooms;
 	}
 	
 	private void loginOrRegister(){
@@ -290,8 +271,7 @@ public class ServerThread extends Thread{
 
 	public void run(){
 		try{
-			System.out.println(users[0].userNum);
-
+			System.out.println("before" + users[0].isOnline());
 
 			toClient = new PrintWriter(socket.getOutputStream(), true);
 			InputStreamReader isr = new InputStreamReader(socket.getInputStream());
@@ -300,7 +280,7 @@ public class ServerThread extends Thread{
 			toClient.println("Welcome to easyChat!");
 			loginOrRegister();	//will only return when user successfully login or register
 
-			System.out.println("after" + users[0].userNum);
+			System.out.println("after" + users[0].isOnline());
 
 			
 			// create fileServerSocket
