@@ -184,31 +184,40 @@ public class ClientGUI {
 		registrationFrame.setLocationRelativeTo(null);
 
 		//selectTargetFrame
-		JLabel selectUser = new JLabel("Target User");
+		JLabel selectUser = new JLabel("Select Target User");
 		selectUserTextField = new JTextField(16);
 		JButton btnSelectUser = new JButton("Confirm");
+		JLabel createChatroom = new JLabel("or Create a Chatroom!");
 
 		selectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 		selectUserTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
+		createChatroom.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		createChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		createChatroom.setForeground(Color.blue);
 
 		selectTargetFrame.addWindowListener(new closeHandler());
 		btnSelectUser.addActionListener(new selectUserListener());
 		selectUserTextField.addActionListener(new selectUserListener());
+		createChatroom.addMouseListener(new gotoCreateChatroomListener());
 
 		GroupLayout selectUserLayout = new GroupLayout(selectTargetFrame.getContentPane());
         selectTargetFrame.getContentPane().setLayout(selectUserLayout);
 
 		selectUserLayout.setHorizontalGroup(selectUserLayout.createSequentialGroup()
 			.addGap(20)
-			.addGroup(selectUserLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-				.addGroup(selectUserLayout.createSequentialGroup()
-					.addComponent(selectUser)
+			.addGroup(selectUserLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addGroup(selectUserLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+					.addGroup(selectUserLayout.createSequentialGroup()
+						.addComponent(selectUser)
+						.addGap(10)
+						.addComponent(selectUserTextField)
+					)
 					.addGap(10)
-					.addComponent(selectUserTextField)
+					.addComponent(btnSelectUser)
 				)
-				.addGap(10)
-				.addComponent(btnSelectUser)
+				.addGap(15)
+				.addComponent(createChatroom)
 			)
 			.addGap(20)
 		);
@@ -222,6 +231,8 @@ public class ClientGUI {
 			)
 			.addGap(10)
 			.addComponent(btnSelectUser)
+			.addGap(15)
+			.addComponent(createChatroom)
 			.addGap(20)
 		);
 
@@ -363,6 +374,12 @@ public class ClientGUI {
 			else { //target does not exist
 				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
+		}
+	}
+
+	class gotoCreateChatroomListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+			JOptionPane.showMessageDialog(null, "Not implemented yet!", "Info", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
