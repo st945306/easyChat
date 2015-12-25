@@ -108,13 +108,23 @@ public class Client{
 		}
 	}
 
-	public void createChatRoom(String chatRoomName){
+	public boolean createChatRoom(String chatRoomName){
+		String result = new String();
 		try {
 			toServer.println("createChatRoom");
 			toServer.println(chatRoomName);
+			result = fromServer.readLine();
 		}
 		catch(Exception e){
 			System.out.println("create chat room error");
+		}
+		if (result.equals("success")){
+			System.out.println("chat room created");
+			return true;
+		}
+		else{
+			System.out.println("chat room name exist");
+			return false;
 		}
 	}
 
@@ -129,7 +139,7 @@ public class Client{
 			System.out.println("enter chat room error");
 		}
 		if (reply.equals("success")){
-			System.out.println("chat room exist");
+			System.out.println("entered the chat room " + chatRoomName);
 			return true;
 		}
 		else{
@@ -229,8 +239,8 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
-			createChatRoom("Your ma ma so fat");
-			enterChatRoom("Your ma ma so fat");
+			createChatRoom("Yo man");
+			enterChatRoom("Yo man");
 
 /*
 			while (true){
@@ -242,7 +252,7 @@ public class Client{
 				}
 			}
 
-			
+
 		
 	//		selectTarget("Nicky");
 

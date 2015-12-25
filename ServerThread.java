@@ -143,9 +143,18 @@ public class ServerThread extends Thread{
 				}
 				else if (command.equals("createChatRoom")){
 					String chatRoomName = fromClient.readLine();
-					chatRooms[ChatRoom.chatRoomNum] = new ChatRoom(chatRoomName);
-
-					System.out.println("chat room " + chatRoomName + " is created");
+					int i;
+					for (i = 0; i < ChatRoom.chatRoomNum; i++)
+						if (chatRoomName.equals(chatRooms[i].getName())){
+							System.out.println("chat room exists");
+							toClient.println("failed");
+							break;
+						}
+					if (i == ChatRoom.chatRoomNum){
+						chatRooms[ChatRoom.chatRoomNum] = new ChatRoom(chatRoomName);
+						System.out.println("chat room " + chatRoomName + " is created");
+						toClient.println("success");
+					}
 					command = "nothing";
 				}
 				else if (command.equals("enterChatRoom")){
@@ -210,15 +219,13 @@ public class ServerThread extends Thread{
 					}
 					else {
 						int[] memberIDs = chatRooms[chatRoomID].memberIDs;
-						for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
+						message = "";
+						for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++)
 							if (hasNewMessage[memberIDs[i]][userID]){
-								message = mailbox[memberIDs[i]][userID];
+								message += mailbox[memberIDs[i]][userID];
 								hasNewMessage[memberIDs[i]][userID] = false;
-								toClient.println(message);
 							}
-							else
-								toClient.println("");
-						}
+						toClient.println(message);
 					}
 					command = "nothing";
 				}
@@ -271,8 +278,6 @@ public class ServerThread extends Thread{
 
 	public void run(){
 		try{
-			System.out.println("before" + users[0].isOnline());
-
 			toClient = new PrintWriter(socket.getOutputStream(), true);
 			InputStreamReader isr = new InputStreamReader(socket.getInputStream());
 			fromClient = new BufferedReader(isr);
@@ -280,9 +285,6 @@ public class ServerThread extends Thread{
 			toClient.println("Welcome to easyChat!");
 			loginOrRegister();	//will only return when user successfully login or register
 
-			System.out.println("after" + users[0].isOnline());
-
-			
 			// create fileServerSocket
 			InetAddress ip = InetAddress.getByName(Server.serverIP);
 			fileServerSocket = new ServerSocket(10000 + userID, 50, ip);
