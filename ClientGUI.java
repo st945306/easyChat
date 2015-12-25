@@ -20,7 +20,6 @@ public class ClientGUI {
 	ClientListen clientlisten;
 	public static Boolean isListening = false;
 	public static Boolean isSending = false;
-	Boolean msgPopup;
 	JFrame startFrame, selectTargetFrame, sendAndListenFrame;
 	JTextField usernameTextField, selectUserTextField, msgToSend;
 	JPasswordField passwordField;
@@ -54,8 +53,8 @@ public class ClientGUI {
 		btnLogIn.setFont(new Font("Arial", Font.PLAIN, 16));
 		registration.setFont(new Font("Arial", Font.PLAIN, 16));
 
-		usernameTextField.addKeyListener(new enterlogInListener());
-		passwordField.addKeyListener(new enterlogInListener());
+		usernameTextField.addActionListener(new enterlogInListener());
+		passwordField.addActionListener(new enterlogInListener());
 		btnLogIn.addActionListener(new logInListener());
 
         GroupLayout loginLayout = new GroupLayout(startFrame.getContentPane());
@@ -120,7 +119,7 @@ public class ClientGUI {
 		btnSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		btnSelectUser.addActionListener(new selectUserListener());
-		selectUserTextField.addKeyListener(new enterSelectUserListener());
+		selectUserTextField.addActionListener(new enterSelectUserListener());
 
 		GroupLayout selectUserLayout = new GroupLayout(selectTargetFrame.getContentPane());
         selectTargetFrame.getContentPane().setLayout(selectUserLayout);
@@ -177,7 +176,7 @@ public class ClientGUI {
 		btnReSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		btnSendMsg.addActionListener(new sendMsgListener());
-		btnSendMsg.addKeyListener(new enterSendMsgListener());
+		btnSendMsg.addActionListener(new enterSendMsgListener());
 		btnReSelectUser.addActionListener(new reSelectUserListener());
 
 		GroupLayout sendAndListenLayout = new GroupLayout(sendAndListenFrame.getContentPane());
@@ -220,21 +219,15 @@ public class ClientGUI {
 		sendAndListenFrame.setVisible(false);
 	}
 
-	class enterlogInListener implements KeyListener {
-		public void keyPressed(KeyEvent event) {}
-		public void keyTyped(KeyEvent event) {}
-		public void keyReleased(KeyEvent event) {
-			if(event.getKeyCode() == KeyEvent.VK_ENTER && !msgPopup) {
-				if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
-					client.createFileSocket();
-					selectTargetFrame.setVisible(true);
-					startFrame.setVisible(false);
-				}
-				else {//login fail
-					msgPopup = true;
-					JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
-					msgPopup = false;
-				}
+	class enterlogInListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
+				client.createFileSocket();
+				selectTargetFrame.setVisible(true);
+				startFrame.setVisible(false);
+			}
+			else {//login fail
+				JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -247,32 +240,24 @@ public class ClientGUI {
 				startFrame.setVisible(false);
 			}
 			else {//login fail
-				msgPopup = true;
 				JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
-				msgPopup = false;
 			}
 		}
 	}
 
-	class enterSelectUserListener implements KeyListener {
-		public void keyPressed(KeyEvent event) {}
-		public void keyTyped(KeyEvent event) {}
-		public void keyReleased(KeyEvent event) {
-			if(event.getKeyCode() == KeyEvent.VK_ENTER && !msgPopup) {
-				if(client.selectTarget(selectUserTextField.getText())) {
-					isListening = true;
-					clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
-					clientlisten.start();
-					sendAndListenFrame.setTitle(selectUserTextField.getText());
-					selectUserTextField.setText("");
-					sendAndListenFrame.setVisible(true);
-					selectTargetFrame.setVisible(false);
-				}
-				else { //target does not exist
-					msgPopup = true;
-					JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
-					msgPopup = false;
-				}
+	class enterSelectUserListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			if(client.selectTarget(selectUserTextField.getText())) {
+				isListening = true;
+				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
+				clientlisten.start();
+				sendAndListenFrame.setTitle(selectUserTextField.getText());
+				selectUserTextField.setText("");
+				sendAndListenFrame.setVisible(true);
+				selectTargetFrame.setVisible(false);
+			}
+			else { //target does not exist
+				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -289,25 +274,19 @@ public class ClientGUI {
 				selectTargetFrame.setVisible(false);
 			}
 			else { //target does not exist
-				msgPopup = true;
 				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
-				msgPopup = false;
 			}
 		}
 	}
 
-	class enterSendMsgListener implements KeyListener {
-		public void keyPressed(KeyEvent event) {}
-		public void keyTyped(KeyEvent event) {}
-		public void keyReleased(KeyEvent event) {
-			if(event.getKeyCode() == KeyEvent.VK_ENTER && !msgPopup) {
-				String msg = msgToSend.getText();
-				msgToDisplay.append("Me: " + msg + "\n");
-				isSending = true;
-				client.send(msg);
-				isSending = false;
-				msgToSend.setText("");
-			}
+	class enterSendMsgListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			String msg = msgToSend.getText();
+			msgToDisplay.append("Me: " + msg + "\n");
+			isSending = true;
+			client.send(msg);
+			isSending = false;
+			msgToSend.setText("");
 		}
 	}
 
