@@ -158,10 +158,14 @@ public class ServerThread extends Thread{
 					//write to mailbox[userID][targetUserID]
 					message = fromClient.readLine();
 					System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
-					mailbox[userID][targetUserID] = message;
-					hasNewMessage[userID][targetUserID] = true;
-
-
+					if (hasNewMessage[userID][targetUserID]){
+						mailbox[userID][targetUserID] += "\n";
+						mailbox[userID][targetUserID] += message;
+					}
+					else {
+						mailbox[userID][targetUserID] = message;
+						hasNewMessage[userID][targetUserID] = true;
+					}
 					command = "nothing";
 				}
 				else if(command.equals("receive")){
