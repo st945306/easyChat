@@ -201,6 +201,12 @@ public class ServerThread extends Thread{
 
 					command = "nothing";
 				}
+				else if (command.equals("logout")){
+					//close all sockets, setOffline and kill the thread here
+					System.out.println("User " + users[userID].getName() + " logged out...");
+
+					break;
+				}
 			}
 			catch(Exception e){
 				System.out.println("chat error");

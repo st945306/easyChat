@@ -5,7 +5,7 @@ public class Client{
 
 	private BufferedReader fromServer, fromUser;
 	private PrintWriter toServer;
-	private final String serverIp = "140.112.30.34";
+	private final String serverIp = "127.0.0.1";
 	private final int serverPort = 12345;
 	private int userID;
 	private InputStream is;
@@ -155,6 +155,11 @@ public class Client{
 			System.out.println("send file error");
 		}
 	}
+
+	public void logout(){
+		toServer.println("logout");
+	}
+
 	public void run(){
 		createSocket();
 
@@ -209,12 +214,16 @@ public class Client{
 			toServer.println("222");
 			System.out.println(fromServer.readLine());
 */
-			sendFile("file");
+//			sendFile("file");
 
 			String message;
 			while (true){
 				if (fromUser.ready()){
 					message = fromUser.readLine();
+					if (message.equals("logout")){
+						logout();
+						break;
+					}
 					send(message);
 				}
 				message = receive();
