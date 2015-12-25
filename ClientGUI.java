@@ -24,7 +24,9 @@ public class ClientGUI {
 	JFrame startFrame, registrationFrame, selectTargetFrame, sendAndListenFrame;
 	JTextField usernameTextField, r_usernameTextField, selectUserTextField, msgToSend;
 	JPasswordField passwordField, r_passwordField;
+	JLabel isTargetUserOnline;
 	JTextArea msgToDisplay;
+	String targetUser;
 
 	public static void main(String[] args) {
 		clientGUI = new ClientGUI();
@@ -229,9 +231,9 @@ public class ClientGUI {
 		selectTargetFrame.setVisible(false);
 
 		//sendAndListenFrame
+		isTargetUserOnline = new JLabel();
 		msgToSend = new JTextField();
 		msgToDisplay = new JTextArea(30, 40);
-
 		JButton btnSendMsg = new JButton("Send");
 		JButton btnReSelectUser = new JButton("Go Back");
 		JScrollPane scrollPanel = new JScrollPane(msgToDisplay, 
@@ -242,6 +244,7 @@ public class ClientGUI {
 		Border textAreaBorder = BorderFactory.createLineBorder(Color.GRAY);
 		msgToDisplay.setBorder(BorderFactory.createCompoundBorder(textAreaBorder, 
             BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		msgToDisplay.setEditable(false);
 		msgToDisplay.setFont(new Font("Arial", Font.PLAIN, 22));
 		msgToDisplay.setLineWrap(true);
 		msgToDisplay.setWrapStyleWord(true);
@@ -259,6 +262,8 @@ public class ClientGUI {
 		sendAndListenLayout.setHorizontalGroup(sendAndListenLayout.createSequentialGroup()
 			.addGap(20)
 			.addGroup(sendAndListenLayout.createParallelGroup()
+				.addComponent(isTargetUserOnline)
+				.addGap(10)
 				.addComponent(scrollPanel)
 				.addGap(10)
 				.addGroup(sendAndListenLayout.createSequentialGroup()
@@ -274,6 +279,8 @@ public class ClientGUI {
 
 		sendAndListenLayout.setVerticalGroup(sendAndListenLayout.createSequentialGroup()
 			.addGap(20)
+			.addComponent(isTargetUserOnline)
+			.addGap(10)
 			.addComponent(scrollPanel)
 			.addGap(10)
 			.addGroup(sendAndListenLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -343,10 +350,11 @@ public class ClientGUI {
 	class selectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if(client.selectTarget(selectUserTextField.getText())) {
+				targetUser = selectUserTextField.getText();
 				isListening = true;
-				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
+				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
 				clientlisten.start();
-				sendAndListenFrame.setTitle(selectUserTextField.getText());
+				sendAndListenFrame.setTitle(targetUser);
 				selectUserTextField.setText("");
 				msgToSend.requestFocus();
 				sendAndListenFrame.setVisible(true);
@@ -367,6 +375,13 @@ public class ClientGUI {
 			isSending = false;
 			msgToSend.requestFocus();
 			msgToSend.setText("");
+
+			//additional function: check if target is online
+			//not truly implemented yet
+			/*if(client.checkOnline(targetUser) == 1)
+				isTargetUserOnline.setText(targetUser + " is online");
+			else
+				isTargetUserOnline.setText(targetUser + " is offline");*/
 		}
 	}
 
