@@ -21,9 +21,9 @@ public class ClientGUI {
 	public static Boolean isListening = false;
 	public static Boolean isSending = false;
 	Boolean isLogin = false;
-	JFrame startFrame, selectTargetFrame, sendAndListenFrame;
-	JTextField usernameTextField, selectUserTextField, msgToSend;
-	JPasswordField passwordField;
+	JFrame startFrame, registrationFrame, selectTargetFrame, sendAndListenFrame;
+	JTextField usernameTextField, r_usernameTextField, selectUserTextField, msgToSend;
+	JPasswordField passwordField, r_passwordField;
 	JTextArea msgToDisplay;
 
 	public static void main(String[] args) {
@@ -36,6 +36,7 @@ public class ClientGUI {
 		client.createSocket();
 
 		startFrame = new JFrame("start");
+		registrationFrame = new JFrame("registration");
 		selectTargetFrame = new JFrame("select target");
 		sendAndListenFrame = new JFrame("");
 
@@ -45,19 +46,22 @@ public class ClientGUI {
 		usernameTextField = new JTextField(16);
 		passwordField = new JPasswordField(16);
 		JButton btnLogIn = new JButton("Log In");
-		JLabel registration = new JLabel("Click me to sign up");
+		JLabel registration = new JLabel("Sign Up");
 
 		username.setFont(new Font("Arial", Font.PLAIN, 16));
 		password.setFont(new Font("Arial", Font.PLAIN, 16));
 		usernameTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnLogIn.setFont(new Font("Arial", Font.PLAIN, 16));
+		registration.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		registration.setFont(new Font("Arial", Font.PLAIN, 16));
+		registration.setForeground(Color.blue);
 
 		startFrame.addWindowListener(new closeHandler());
-		usernameTextField.addActionListener(new enterlogInListener());
-		passwordField.addActionListener(new enterlogInListener());
+		usernameTextField.addActionListener(new logInListener());
+		passwordField.addActionListener(new logInListener());
 		btnLogIn.addActionListener(new logInListener());
+		registration.addMouseListener(new gotoRegistrationListener());
 
         GroupLayout loginLayout = new GroupLayout(startFrame.getContentPane());
         startFrame.getContentPane().setLayout(loginLayout);
@@ -103,6 +107,7 @@ public class ClientGUI {
 			.addComponent(btnLogIn)
 			.addGap(14)
 			.addComponent(registration)
+			.addGap(20)
 		);
 
 		startFrame.pack();
@@ -110,6 +115,71 @@ public class ClientGUI {
 		startFrame.setLocationRelativeTo(null);
 		usernameTextField.requestFocus();
 		startFrame.setVisible(true);
+
+		//registrationFrame
+		JLabel r_username = new JLabel("Username");
+		JLabel r_password = new JLabel("Password");
+		r_usernameTextField = new JTextField(16);
+		r_passwordField = new JPasswordField(16);
+		JButton btnRegistration = new JButton("Sign Up");
+
+		r_username.setFont(new Font("Arial", Font.PLAIN, 16));
+		r_password.setFont(new Font("Arial", Font.PLAIN, 16));
+		r_usernameTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+		r_passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnRegistration.setFont(new Font("Arial", Font.PLAIN, 16));
+
+		registrationFrame.addWindowListener(new closeHandler());
+		r_usernameTextField.addActionListener(new registrationListener());
+		r_passwordField.addActionListener(new registrationListener());
+		btnRegistration.addActionListener(new registrationListener());
+
+        GroupLayout registrationLayout = new GroupLayout(registrationFrame.getContentPane());
+        registrationFrame.getContentPane().setLayout(registrationLayout);
+
+		registrationLayout.setHorizontalGroup(registrationLayout.createSequentialGroup()
+			.addGap(20)
+			.addGroup(registrationLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addGroup(registrationLayout.createSequentialGroup()
+					.addGroup(registrationLayout.createParallelGroup()
+						.addComponent(r_username)
+						.addGap(14)
+						.addComponent(r_password)
+					)
+					.addGap(12)
+					.addGroup(registrationLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+						.addComponent(r_usernameTextField)
+						.addGap(14)
+						.addComponent(r_passwordField)
+						.addGap(14)
+						.addComponent(btnRegistration)
+					)
+				)
+			)
+			.addGap(20)
+		);
+
+		registrationLayout.setVerticalGroup(registrationLayout.createSequentialGroup()
+			.addGap(20)
+			.addGroup(registrationLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(r_username)
+				.addGap(12)
+				.addComponent(r_usernameTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+			)
+			.addGap(14)
+			.addGroup(registrationLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(r_password)
+				.addGap(12)
+				.addComponent(r_passwordField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+			)
+			.addGap(14)
+			.addComponent(btnRegistration)
+			.addGap(20)
+		);
+
+		registrationFrame.pack();
+        registrationFrame.setResizable(false);
+		registrationFrame.setLocationRelativeTo(null);
 
 		//selectTargetFrame
 		JLabel selectUser = new JLabel("Target User");
@@ -122,7 +192,7 @@ public class ClientGUI {
 
 		selectTargetFrame.addWindowListener(new closeHandler());
 		btnSelectUser.addActionListener(new selectUserListener());
-		selectUserTextField.addActionListener(new enterSelectUserListener());
+		selectUserTextField.addActionListener(new selectUserListener());
 
 		GroupLayout selectUserLayout = new GroupLayout(selectTargetFrame.getContentPane());
         selectTargetFrame.getContentPane().setLayout(selectUserLayout);
@@ -150,6 +220,7 @@ public class ClientGUI {
 			)
 			.addGap(10)
 			.addComponent(btnSelectUser)
+			.addGap(20)
 		);
 
 		selectTargetFrame.pack();
@@ -179,7 +250,7 @@ public class ClientGUI {
 
 		sendAndListenFrame.addWindowListener(new closeHandler());
 		btnSendMsg.addActionListener(new sendMsgListener());
-		msgToSend.addActionListener(new enterSendMsgListener());
+		msgToSend.addActionListener(new sendMsgListener());
 		btnReSelectUser.addActionListener(new reSelectUserListener());
 
 		GroupLayout sendAndListenLayout = new GroupLayout(sendAndListenFrame.getContentPane());
@@ -221,46 +292,7 @@ public class ClientGUI {
 		sendAndListenFrame.setVisible(false);
 	}
 
-	void doLogin() {
-		if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
-			isLogin = true;
-			client.createFileSocket();
-			selectUserTextField.requestFocus();
-			selectTargetFrame.setVisible(true);
-			startFrame.setVisible(false);
-		}
-		else {//login fail
-			JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	void doSelectUser() {
-		if(client.selectTarget(selectUserTextField.getText())) {
-			isListening = true;
-			clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
-			clientlisten.start();
-			sendAndListenFrame.setTitle(selectUserTextField.getText());
-			selectUserTextField.setText("");
-			msgToSend.requestFocus();
-			sendAndListenFrame.setVisible(true);
-			selectTargetFrame.setVisible(false);
-		}
-		else { //target does not exist
-			JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	void doSend() {
-		String msg = msgToSend.getText();
-		msgToDisplay.append("Me: " + msg + "\n");
-		isSending = true;
-		client.send(msg);
-		isSending = false;
-		msgToSend.requestFocus();
-		msgToSend.setText("");
-	}
-
-	class closeHandler extends WindowAdapter{
+	class closeHandler extends WindowAdapter {
 		public void windowClosing(WindowEvent event) {
 			if(isListening)
 				isListening = false;
@@ -272,39 +304,69 @@ public class ClientGUI {
 		}
 	}
 
-	class enterlogInListener implements ActionListener {
+	class gotoRegistrationListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+			r_usernameTextField.requestFocus();
+			registrationFrame.setVisible(true);
+			startFrame.setVisible(false);
+		}
+	}
+
+	class registrationListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			doLogin();
+			if(client.register(r_usernameTextField.getText(), String.valueOf(r_passwordField.getPassword()))) {
+				JOptionPane.showMessageDialog(null, "Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
+				selectTargetFrame.setVisible(true);
+				registrationFrame.setVisible(false);
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Username has been used", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
 	class logInListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			doLogin();
-		}
-	}
-
-	class enterSelectUserListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			doSelectUser();
+			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
+				isLogin = true;
+				client.createFileSocket();
+				selectUserTextField.requestFocus();
+				selectTargetFrame.setVisible(true);
+				startFrame.setVisible(false);
+			}
+			else {//login fail
+				JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
 	class selectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			doSelectUser();
-		}
-	}
-
-	class enterSendMsgListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			doSend();
+			if(client.selectTarget(selectUserTextField.getText())) {
+				isListening = true;
+				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
+				clientlisten.start();
+				sendAndListenFrame.setTitle(selectUserTextField.getText());
+				selectUserTextField.setText("");
+				msgToSend.requestFocus();
+				sendAndListenFrame.setVisible(true);
+				selectTargetFrame.setVisible(false);
+			}
+			else { //target does not exist
+				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
 	class sendMsgListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			doSend();
+			String msg = msgToSend.getText();
+			msgToDisplay.append("Me: " + msg + "\n");
+			isSending = true;
+			client.send(msg);
+			isSending = false;
+			msgToSend.requestFocus();
+			msgToSend.setText("");
 		}
 	}
 
