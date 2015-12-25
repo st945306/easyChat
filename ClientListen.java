@@ -4,12 +4,14 @@ public class ClientListen extends Thread {
 	Client client;
 	ClientGUI clientGUI;
 	JTextArea msgToDisplay;
+	String targetUser;
 	String msg;
 
-	public ClientListen(Client cl, ClientGUI clg, JTextArea ms) {
+	public ClientListen(Client cl, ClientGUI clg, JTextArea ms, String u) {
 		client = cl;
 		clientGUI = clg;
 		msgToDisplay = ms;
+		targetUser = u;
 	}
 
 	@Override
@@ -21,7 +23,7 @@ public class ClientListen extends Thread {
 			msg = client.receive();
 			if(msg.length() == 0)
 				continue;
-			msgToDisplay.append("Others: " + msg + "\n");
+			msgToDisplay.append(targetUser + ": " + msg + "\n");
 		}
 		System.out.println("Client listen terminates");
 	}

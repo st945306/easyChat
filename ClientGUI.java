@@ -53,6 +53,8 @@ public class ClientGUI {
 		btnLogIn.setFont(new Font("Arial", Font.PLAIN, 16));
 		registration.setFont(new Font("Arial", Font.PLAIN, 16));
 
+		usernameTextField.addKeyListener(new enterlogInListener());
+		passwordField.addKeyListener(new enterlogInListener());
 		btnLogIn.addActionListener(new logInListener());
 
         GroupLayout loginLayout = new GroupLayout(startFrame.getContentPane());
@@ -117,6 +119,7 @@ public class ClientGUI {
 		btnSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		btnSelectUser.addActionListener(new selectUserListener());
+		selectUserTextField.addKeyListener(new enterSelectUserListener());
 
 		GroupLayout selectUserLayout = new GroupLayout(selectTargetFrame.getContentPane());
         selectTargetFrame.getContentPane().setLayout(selectUserLayout);
@@ -173,6 +176,7 @@ public class ClientGUI {
 		btnReSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		btnSendMsg.addActionListener(new sendMsgListener());
+		btnSendMsg.addKeyListener(new enterSendMsgListener());
 		btnReSelectUser.addActionListener(new reSelectUserListener());
 
 		GroupLayout sendAndListenLayout = new GroupLayout(sendAndListenFrame.getContentPane());
@@ -215,6 +219,23 @@ public class ClientGUI {
 		sendAndListenFrame.setVisible(false);
 	}
 
+	class enterlogInListener implements KeyListener {
+		public void keyPressed(KeyEvent event) {}
+		public void keyTyped(KeyEvent event) {}
+		public void keyReleased(KeyEvent event) {
+			if(event.getKeyCode() == KeyEvent.VK_ENTER) {
+				if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
+					client.createFileSocket();
+					selectTargetFrame.setVisible(true);
+					startFrame.setVisible(false);
+				}
+				else {//login fail
+					JOptionPane.showMessageDialog(null, "Wrong username or password!", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+	}
+
 	class logInListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
@@ -228,11 +249,27 @@ public class ClientGUI {
 		}
 	}
 
+	class enterSelectUserListener implements KeyListener {
+		public void keyPressed(KeyEvent event) {}
+		public void keyTyped(KeyEvent event) {}
+		public void keyReleased(KeyEvent event) {
+			if(client.selectTarget(selectUserTextField.getText())) {
+				isListening = true;
+				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
+				clientlisten.start();
+				sendAndListenFrame.setTitle(selectUserTextField.getText());
+				selectUserTextField.setText("");
+				sendAndListenFrame.setVisible(true);
+				selectTargetFrame.setVisible(false);
+			}
+		}
+	}
+
 	class selectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if(client.selectTarget(selectUserTextField.getText())) {
 				isListening = true;
-				clientlisten = new ClientListen(client, clientGUI, msgToDisplay);
+				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, selectUserTextField.getText());
 				clientlisten.start();
 				sendAndListenFrame.setTitle(selectUserTextField.getText());
 				selectUserTextField.setText("");
@@ -241,6 +278,21 @@ public class ClientGUI {
 			}
 			else { //target does not exist
 				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	class enterSendMsgListener implements KeyListener {
+		public void keyPressed(KeyEvent event) {}
+		public void keyTyped(KeyEvent event) {}
+		public void keyReleased(KeyEvent event) {
+			if(client.selectTarget(selectUserTextField.getText())) {
+				String msg = msgToSend.getText();
+				msgToDisplay.append("Me: " + msg + "\n");
+				isSending = true;
+				client.send(msg);
+				isSending = false;
+				msgToSend.setText("");
 			}
 		}
 	}
