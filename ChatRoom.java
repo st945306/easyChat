@@ -13,6 +13,9 @@ class ChatRoom{
 	}
 
 	public void addMember(int id){
+		for (int i = 0; i < memberNum; i++)
+			if (this.memberIDs[i] == id)
+				return;
 		this.memberIDs[this.memberNum] = id;
 		this.memberNum++;
 	}

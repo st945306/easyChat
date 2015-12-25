@@ -265,7 +265,7 @@ public class ServerThread extends Thread{
 					fileServerSocket.close();
 					socket.close();
 					users[userID].setOffline();
-					break;
+					return;
 				}
 
 			}
