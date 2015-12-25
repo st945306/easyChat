@@ -7,11 +7,11 @@ public class ClientListen extends Thread {
 	String targetUser;
 	String msg;
 
-	public ClientListen(Client cl, ClientGUI clg, JTextArea ms) {
+	public ClientListen(Client cl, ClientGUI clg, JTextArea ms, String u) {
 		client = cl;
 		clientGUI = clg;
 		msgToDisplay = ms;
-		//targetUser = u;
+		targetUser = u;
 	}
 
 	@Override
