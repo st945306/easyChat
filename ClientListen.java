@@ -3,23 +3,26 @@ import javax.swing.*;
 public class ClientListen extends Thread {
 	Client client;
 	ClientGUI clientGUI;
-	JTextArea msgToDisplay;
 	String targetUser;
+
+	JTextArea msgToDisplay;
 	String msg;
 
-	public ClientListen(Client cl, ClientGUI clg, JTextArea ms, String u) {
-		client = cl;
-		clientGUI = clg;
-		msgToDisplay = ms;
-		targetUser = u;
+	public ClientListen(Client cli, ClientGUI cliGUI, JTextArea msg, String user) {
+		client = cli;
+		clientGUI = cliGUI;
+		msgToDisplay = msg;
+		targetUser = user;
 	}
 
 	@Override
 	public void run() {
 		System.out.println("Client listen starts");
 		while(clientGUI.isListening) {
-			if(clientGUI.isSending)
-				continue;
+			//don't do anything while processing sending
+			if(clientGUI.isSending) continue;
+
+			//get messages
 			msg = client.receive();
 			if(msg.length() == 0)
 				continue;
