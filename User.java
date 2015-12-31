@@ -1,5 +1,6 @@
 public class User{
-
+	public static final int MAXUSERNUM = 30;
+	public static final int MAXFILESIZE = 300000000;	//300mb
 	static int userNum;
 	private int id;
 	private String name;

@@ -3,8 +3,8 @@ import java.net.*;
 
 public class ServerThread extends Thread{
 
-	private static final int MAXUSERNUM = 30;
-	private static final int MAXCHATROOMNUM = 30;
+	private static final int MAXUSERNUM = User.MAXUSERNUM;
+	private static final int MAXCHATROOMNUM = ChatRoom.MAXCHATROOMNUM;
 	private static User[] users = new User[MAXUSERNUM];
 	private static ChatRoom[] chatRooms = new ChatRoom[MAXCHATROOMNUM];
 	private static String[][] mailbox = new String[MAXUSERNUM][MAXUSERNUM];
