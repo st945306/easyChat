@@ -7,8 +7,8 @@ public class ServerThread extends Thread{
 	private static final int MAXCHATROOMNUM = ChatRoom.MAXCHATROOMNUM;
 	private static User[] users = new User[MAXUSERNUM];
 	private static ChatRoom[] chatRooms = new ChatRoom[MAXCHATROOMNUM];
-	private static String[][] mailbox = new String[MAXUSERNUM][MAXUSERNUM];
-	private static boolean[][] hasNewMessage = new boolean[MAXUSERNUM][MAXUSERNUM];
+//	private static String[][] mailbox = new String[MAXUSERNUM][MAXUSERNUM];
+//	private static boolean[][] hasNewMessage = new boolean[MAXUSERNUM][MAXUSERNUM];
 	private Socket socket, fileSocket;
 	private ServerSocket fileServerSocket;
 	private PrintWriter toClient;
@@ -254,43 +254,38 @@ public class ServerThread extends Thread{
 		}
 	}
 
+	private void logout(){
+		System.out.println("User " + users[userID].getName() + " logged out...");
+		try {
+			is.close();
+			os.close();
+			fileSocket.close();
+			fileServerSocket.close();
+			socket.close();
+			users[userID].setOffline();
+		}
+		catch (Exception e){
+			System.out.println("log out error");
+		}
+	}
+
 	private void startChat(){
 		String command = "nothing";
-		String targetName = new String();
-		String onlineResult = new String();
-		String message = new String();
-
-		System.out.println(userID);
-		System.out.println(hasNewMessage[0][userID]);
-
 		while(true){
 			try{
-				if (fromClient.ready())
-					command = fromClient.readLine();
-				if (command.equals("checkOnline")){
+				command = fromClient.readLine();
+				if (command.equals("checkOnline"))
 					checkOnline();
-					command = "nothing";
-				}
-				else if (command.equals("selectTarget")){
+				else if (command.equals("selectTarget"))
 					selectTarget();
-					command = "nothing";
-				}
-				else if (command.equals("createChatRoom")){
+				else if (command.equals("createChatRoom"))
 					createChatRoom();
-					command = "nothing";
-				}
-				else if (command.equals("enterChatRoom")){
+				else if (command.equals("enterChatRoom"))
 					enterChatRoom();
-					command = "nothing";
-				}
-				else if(command.equals("send")){
+				else if(command.equals("send"))
 					send();
-					command = "nothing";
-				}
-				else if(command.equals("receive")){
+				else if(command.equals("receive"))
 					receive();
-					command = "nothing";
-				}
 				else if(command.equals("sendFile")){
 					String filename = fromClient.readLine();
 					int filesize = Integer.parseInt(fromClient.readLine());
@@ -319,17 +314,9 @@ public class ServerThread extends Thread{
 					command = "nothing";
 				}
 				else if (command.equals("logout")){
-					//close all sockets, setOffline
-					System.out.println("User " + users[userID].getName() + " logged out...");
-					is.close();
-					os.close();
-					fileSocket.close();
-					fileServerSocket.close();
-					socket.close();
-					users[userID].setOffline();
+					logout();
 					return;
 				}
-
 			}
 			catch(Exception e){
 				System.out.println("chat error");
