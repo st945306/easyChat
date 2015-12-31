@@ -1,5 +1,3 @@
-// change the function name of loginOrRegister?
-// cause it has a STOP function now
 import java.io.*;
 import java.net.*;
 
@@ -19,7 +17,6 @@ public class ServerThread extends Thread{
 	private InputStream is;
 	private OutputStream os;
 	private boolean inChatRoom = false;
-
 
 	public ServerThread(Socket socket, User[] users, ChatRoom[] chatRooms){
 		this.socket = socket;
@@ -91,6 +88,153 @@ public class ServerThread extends Thread{
 		}
 	}
 
+	private void checkOnline(){
+		int i, result = -1;
+		try {
+			String targetName = fromClient.readLine();
+			System.out.format("checking if %s is online...%n", targetName);
+			for (i = 0; i < User.userNum; i++)
+				if (users[i].getName().equals(targetName)){
+					if (users[i].isOnline())
+						result = 1;
+					else
+						result = 2;
+					break;
+				}
+			if (i == User.userNum)
+				result = 3;
+			toClient.println(result);
+		}
+		catch(Exception e){
+			System.out.println("check online error");
+		}
+	}
+
+	private void selectTarget(){
+		int i;
+		try {
+			String targetName = fromClient.readLine();
+			System.out.println("selecting " + targetName + "...");
+			for (i = 0; i < User.userNum; i++)
+				if (users[i].getName().equals(targetName)){
+					toClient.println("success");
+					targetUserID = i;
+					inChatRoom = false;
+					break;
+				}
+			if (i == User.userNum)
+				toClient.println("failed");
+		}
+		catch (Exception e){
+			System.out.println("selectTarget error");
+		}
+	}
+	
+	private void createChatRoom(){
+		int i;
+		try {
+			String chatRoomName = fromClient.readLine();
+			for (i = 0; i < ChatRoom.chatRoomNum; i++)
+				if (chatRoomName.equals(chatRooms[i].getName())){
+					System.out.println("chat room exists");
+					toClient.println("failed");
+					break;
+				}
+			if (i == ChatRoom.chatRoomNum){
+				chatRooms[ChatRoom.chatRoomNum] = new ChatRoom(chatRoomName);
+				System.out.println("chat room " + chatRoomName + " is created");
+				toClient.println("success");
+			}
+		}
+		catch(Exception e){
+			System.out.println("create chat room error");
+		}
+	}
+
+	private void enterChatRoom(){
+		int i;
+		try {
+			String chatRoomName = fromClient.readLine();
+			System.out.println("entering " + chatRoomName + "...");
+			for (i = 0; i < ChatRoom.chatRoomNum; i++)
+				if (chatRooms[i].getName().equals(chatRoomName)){
+					toClient.println("success");
+					chatRoomID = i;
+					chatRooms[i].addMember(userID);
+					chatRooms[i].printInfo();
+					inChatRoom = true;
+					break;
+				}
+			if (i == ChatRoom.chatRoomNum)
+				toClient.println("failed");
+		}
+		catch(Exception e){
+			System.out.println("enter chat room error");
+		}
+	}
+
+	private void send(){
+		try {
+			String message = fromClient.readLine();
+			if (!inChatRoom){
+				System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
+				if (hasNewMessage[userID][targetUserID]){
+					mailbox[userID][targetUserID] += "\n";
+					mailbox[userID][targetUserID] += message;
+				}
+				else {
+					mailbox[userID][targetUserID] = message;
+					hasNewMessage[userID][targetUserID] = true;
+				}
+			}
+			else {
+				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
+				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
+					System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
+					if (hasNewMessage[userID][memberIDs[i]]){
+						mailbox[userID][memberIDs[i]] += "\n";
+						mailbox[userID][memberIDs[i]] += message;
+					}
+					else {
+						mailbox[userID][memberIDs[i]] = message;
+						hasNewMessage[userID][memberIDs[i]] = true;
+					}
+				}
+			}
+		}
+		catch(Exception e){
+			System.out.println("send error");
+		}
+	}
+
+	private void receive(){
+		try {
+			String message;
+			if (!inChatRoom){
+				if (hasNewMessage[targetUserID][userID]){
+					message = mailbox[targetUserID][userID];
+					hasNewMessage[targetUserID][userID] = false;
+					toClient.println(message);
+				}
+				else
+					toClient.println("");
+			}
+			else {
+				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
+				message = "";
+				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++)
+					if (hasNewMessage[memberIDs[i]][userID]){
+						message += mailbox[memberIDs[i]][userID];
+						hasNewMessage[memberIDs[i]][userID] = false;
+					}
+				toClient.println(message);
+			}
+		}
+		catch(Exception e){
+			System.out.println("receive error");
+		}
+	}
+
 	private void startChat(){
 		String command = "nothing";
 		String targetName = new String();
@@ -100,131 +244,32 @@ public class ServerThread extends Thread{
 		System.out.println(userID);
 		System.out.println(hasNewMessage[0][userID]);
 
-
-
 		while(true){
 			try{
 				if (fromClient.ready())
 					command = fromClient.readLine();
-				if (command.equals("check")){
-					targetName = fromClient.readLine();
-					System.out.format("checking if %s is online...%n", targetName);
-					int i;
-					for (i = 0; i < User.userNum; i++)
-						if (users[i].getName().equals(targetName)){
-							if (users[i].isOnline())
-								onlineResult = "1";
-							else
-								onlineResult = "2";
-							break;
-						}
-					if (i == User.userNum)
-						onlineResult = "3";
-					toClient.println(onlineResult);
+				if (command.equals("checkOnline")){
+					checkOnline();
 					command = "nothing";
 				}
-				else if (command.equals("change")){
-					//change targetUserID
-					targetName = fromClient.readLine();
-					System.out.println("selecting " + targetName + "...");
-					int i;
-					for (i = 0; i < User.userNum; i++)
-						if (users[i].getName().equals(targetName)){
-							toClient.println("success");
-							targetUserID = i;
-							inChatRoom = false;
-							break;
-						}
-					if (i == User.userNum)
-						toClient.println("failed");
+				else if (command.equals("selectTarget")){
+					selectTarget();
 					command = "nothing";
 				}
 				else if (command.equals("createChatRoom")){
-					String chatRoomName = fromClient.readLine();
-					int i;
-					for (i = 0; i < ChatRoom.chatRoomNum; i++)
-						if (chatRoomName.equals(chatRooms[i].getName())){
-							System.out.println("chat room exists");
-							toClient.println("failed");
-							break;
-						}
-					if (i == ChatRoom.chatRoomNum){
-						chatRooms[ChatRoom.chatRoomNum] = new ChatRoom(chatRoomName);
-						System.out.println("chat room " + chatRoomName + " is created");
-						toClient.println("success");
-					}
+					createChatRoom();
 					command = "nothing";
 				}
 				else if (command.equals("enterChatRoom")){
-					//change chatRoomID
-					String chatRoomName = fromClient.readLine();
-					System.out.println("entering " + chatRoomName + "...");
-					int i;
-					for (i = 0; i < ChatRoom.chatRoomNum; i++)
-						if (chatRooms[i].getName().equals(chatRoomName)){
-							toClient.println("success");
-							chatRoomID = i;
-							chatRooms[i].addMember(userID);
-							chatRooms[i].printInfo();
-							inChatRoom = true;
-							break;
-						}
-					if (i == ChatRoom.chatRoomNum)
-						toClient.println("failed");
+					enterChatRoom();
 					command = "nothing";
 				}
 				else if(command.equals("send")){
-					//write to mailbox[userID][targetUserID]
-					message = fromClient.readLine();
-					if (!inChatRoom){
-						System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
-						if (hasNewMessage[userID][targetUserID]){
-							mailbox[userID][targetUserID] += "\n";
-							mailbox[userID][targetUserID] += message;
-						}
-						else {
-							mailbox[userID][targetUserID] = message;
-							hasNewMessage[userID][targetUserID] = true;
-						}
-					}
-					else {
-						int[] memberIDs = chatRooms[chatRoomID].memberIDs;
-						for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
-							System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
-							if (hasNewMessage[userID][memberIDs[i]]){
-								mailbox[userID][memberIDs[i]] += "\n";
-								mailbox[userID][memberIDs[i]] += message;
-							}
-							else {
-								mailbox[userID][memberIDs[i]] = message;
-								hasNewMessage[userID][memberIDs[i]] = true;
-							}
-						}
-
-					}
+					send();
 					command = "nothing";
 				}
 				else if(command.equals("receive")){
-					//read from mailbox[targetUserID][userID]
-					if (!inChatRoom){
-						if (hasNewMessage[targetUserID][userID]){
-							message = mailbox[targetUserID][userID];
-							hasNewMessage[targetUserID][userID] = false;
-							toClient.println(message);
-						}
-						else
-							toClient.println("");
-					}
-					else {
-						int[] memberIDs = chatRooms[chatRoomID].memberIDs;
-						message = "";
-						for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++)
-							if (hasNewMessage[memberIDs[i]][userID]){
-								message += mailbox[memberIDs[i]][userID];
-								hasNewMessage[memberIDs[i]][userID] = false;
-							}
-						toClient.println(message);
-					}
+					receive();
 					command = "nothing";
 				}
 				else if(command.equals("sendFile")){
@@ -272,7 +317,6 @@ public class ServerThread extends Thread{
 				return;
 			}
 		}
-	
 	}
 
 	public void run(){
@@ -280,10 +324,15 @@ public class ServerThread extends Thread{
 			toClient = new PrintWriter(socket.getOutputStream(), true);
 			InputStreamReader isr = new InputStreamReader(socket.getInputStream());
 			fromClient = new BufferedReader(isr);
-
 			toClient.println("Welcome to easyChat!");
-			loginOrRegister();	//will only return when user successfully login or register
+		}
+		catch(Exception e){
+			System.out.println("server welcome error");
+		}
 
+		loginOrRegister();	//will only return when user successfully login or register
+		
+		try {
 			// create fileServerSocket
 			InetAddress ip = InetAddress.getByName(Server.serverIP);
 			fileServerSocket = new ServerSocket(10000 + userID, 50, ip);
@@ -291,18 +340,11 @@ public class ServerThread extends Thread{
 			fileSocket = fileServerSocket.accept();
 			is = fileSocket.getInputStream();
 			os = fileSocket.getOutputStream();
-	/*		
-			System.out.println(fromClient.readLine());
-			System.out.println(fromClient.readLine());
-
-			toClient.println("test1");
-*/
-
-			startChat();
 		}
 		catch(Exception e){
-			System.out.println("server send msg error");
-			return;
+			System.out.println("create file socket error");
 		}
+
+		startChat();
 	}
 }

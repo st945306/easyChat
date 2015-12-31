@@ -77,7 +77,7 @@ public class Client{
 	public int checkOnline(String targetName){
 		String reply = new String();
 		try{
-			toServer.println("check");
+			toServer.println("checkOnline");
 			toServer.println(targetName);
 			reply = fromServer.readLine();
 		}
@@ -90,7 +90,7 @@ public class Client{
 	public boolean selectTarget(String targetName){
 		String reply = new String();
 		try{
-			toServer.println("change");
+			toServer.println("selectTarget");
 			toServer.println(targetName);
 			reply = fromServer.readLine();
 		}
@@ -207,7 +207,6 @@ public class Client{
 		boolean isLoginOrRegister = false;
 		String command, name, password;
 		try {
-			
 			// login or register
 			while(!isLoginOrRegister){
 				System.out.print("login or register: ");
