@@ -251,15 +251,10 @@ public class Client{
 				}
 			}
 
-
+*/
 		
 	//		selectTarget("Nicky");
 
-/*
-			toServer.println("111");
-			toServer.println("222");
-			System.out.println(fromServer.readLine());
-*/
 //			sendFile("file");
 
 			String message;

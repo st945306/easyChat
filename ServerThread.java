@@ -178,6 +178,8 @@ public class ServerThread extends Thread{
 			String message = fromClient.readLine();
 			if (!inChatRoom){
 				System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
+				users[targetUserID].putMessage(userID, message);
+				/*
 				if (hasNewMessage[userID][targetUserID]){
 					mailbox[userID][targetUserID] += "\n";
 					mailbox[userID][targetUserID] += message;
@@ -186,11 +188,14 @@ public class ServerThread extends Thread{
 					mailbox[userID][targetUserID] = message;
 					hasNewMessage[userID][targetUserID] = true;
 				}
+				*/
 			}
 			else {
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
 				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
 					System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
+					users[memberIDs[i]].putMessage(userID, message);
+					/*
 					if (hasNewMessage[userID][memberIDs[i]]){
 						mailbox[userID][memberIDs[i]] += "\n";
 						mailbox[userID][memberIDs[i]] += message;
@@ -199,6 +204,7 @@ public class ServerThread extends Thread{
 						mailbox[userID][memberIDs[i]] = message;
 						hasNewMessage[userID][memberIDs[i]] = true;
 					}
+					*/
 				}
 			}
 		}
@@ -211,6 +217,8 @@ public class ServerThread extends Thread{
 		try {
 			String message;
 			if (!inChatRoom){
+				toClient.println(users[userID].getMessage(targetUserID));
+				/*
 				if (hasNewMessage[targetUserID][userID]){
 					message = mailbox[targetUserID][userID];
 					hasNewMessage[targetUserID][userID] = false;
@@ -218,15 +226,26 @@ public class ServerThread extends Thread{
 				}
 				else
 					toClient.println("");
+				*/
 			}
 			else {
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
 				message = "";
-				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++)
+				String token = "";
+				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
+					token = users[userID].getMessage(memberIDs[i]);
+					if (token.length() != 0){
+						message += token;
+						message += "\n";
+					}
+				}
+					
+					/*
 					if (hasNewMessage[memberIDs[i]][userID]){
 						message += mailbox[memberIDs[i]][userID];
 						hasNewMessage[memberIDs[i]][userID] = false;
 					}
+					*/
 				toClient.println(message);
 			}
 		}
