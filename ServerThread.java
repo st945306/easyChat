@@ -17,6 +17,7 @@ public class ServerThread extends Thread{
 	private InputStream is;
 	private OutputStream os;
 	private boolean inChatRoom = false;
+	private String userName;
 
 	public ServerThread(Socket socket, User[] users, ChatRoom[] chatRooms){
 		this.socket = socket;
@@ -46,6 +47,7 @@ public class ServerThread extends Thread{
 						toClient.println(i);
 						users[i].setOnline();
 						userID = i;
+						userName = name;
 						return;
 					}
 				}
@@ -83,6 +85,7 @@ public class ServerThread extends Thread{
 				System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
 				toClient.println(id);
 				userID = id;
+				userName = name;
 				return;
 			}
 		}
@@ -178,7 +181,7 @@ public class ServerThread extends Thread{
 			String message = fromClient.readLine();
 			if (!inChatRoom){
 				System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
-				users[targetUserID].putMessage(userID, message);
+				users[targetUserID].putMessage(userID, userName, message);
 				/*
 				if (hasNewMessage[userID][targetUserID]){
 					mailbox[userID][targetUserID] += "\n";
@@ -194,7 +197,7 @@ public class ServerThread extends Thread{
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
 				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
 					System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
-					users[memberIDs[i]].putMessage(userID, message);
+					users[memberIDs[i]].putMessage(userID, userName, message);
 					/*
 					if (hasNewMessage[userID][memberIDs[i]]){
 						mailbox[userID][memberIDs[i]] += "\n";
@@ -254,6 +257,49 @@ public class ServerThread extends Thread{
 		}
 	}
 
+	//this is for server receive file and put in fileBox
+	private void sendFile(){
+		try {
+			String fileName = fromClient.readLine();
+			int fileSize = Integer.parseInt(fromClient.readLine());
+			byte[] buffer = new byte[fileSize];
+
+			int byteRead = 0;
+			for (int i = 0; i < fileSize;){
+				byteRead = is.read(buffer, i, fileSize - i);
+				i += byteRead;
+				System.out.format("%.1f%% complete%n", i * 1.0 / fileSize * 100);
+			}
+
+			users[targetUserID].putFile(fileName, fileSize, buffer);
+			System.out.format("file %s: %d bytes received%n", fileName, fileSize);
+		}
+		catch (Exception e){
+			System.out.println("put file in box error");
+		}
+	}
+
+	//this is for server send file
+	private void receiveFile(){
+		try {
+			String fileName = users[userID].getFileName();
+			int fileSize = users[userID].getFileSize();
+			byte[] file = users[userID].getFile();
+
+			System.out.println("server sending file " + fileName + "...");
+
+			toClient.println(fileName);
+			toClient.println(fileSize);
+
+			os.write(file, 0, fileSize);
+			os.flush();
+		}
+		catch (Exception e){
+			System.out.println("server send file error");
+		}
+
+	}
+
 	private void logout(){
 		System.out.println("User " + users[userID].getName() + " logged out...");
 		try {
@@ -286,33 +332,10 @@ public class ServerThread extends Thread{
 					send();
 				else if(command.equals("receive"))
 					receive();
-				else if(command.equals("sendFile")){
-					String filename = fromClient.readLine();
-					int filesize = Integer.parseInt(fromClient.readLine());
-
-					byte[] buffer = new byte[filesize];
-					FileOutputStream fout = new FileOutputStream("file2");
-					BufferedOutputStream bout = new BufferedOutputStream(fout);
-
-					int byteRead = 0;
-					for (int i = 0; i < filesize;){
-						byteRead = is.read(buffer, 0, filesize);
-						bout.write(buffer, 0, byteRead);
-						i += byteRead;
-						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
-					}
-					bout.flush();
-					bout.close();
-					fout.close();
-					System.out.format("file %s: %d bytes received%n", filename, filesize);
-
-					command = "nothing";
-				}
-				else if(command.equals("receiveFile")){
-
-
-					command = "nothing";
-				}
+				else if(command.equals("sendFile"))
+					sendFile();			
+				else if(command.equals("receiveFile"))
+					receiveFile();
 				else if (command.equals("logout")){
 					logout();
 					return;

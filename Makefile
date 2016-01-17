@@ -5,8 +5,8 @@ all:
 run_gui:
 	java ClientGUI
 
-run_server:
+run_ser:
 	java Server
 
-run_client:
+run_ter:
 	java Client
