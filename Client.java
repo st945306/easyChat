@@ -171,26 +171,54 @@ public class Client{
 		return message;
 	}
 
-	public void sendFile(String filename){
+	public void sendFile(String fileName){
 		try{
-			System.out.println("sending file " + filename + "...");
+			System.out.println("client sending file " + fileName + "...");
 			toServer.println("sendFile");
 
-			File file = new File(filename);
-			int filesize = (int)file.length();
-			toServer.println(filename);
-			toServer.println(filesize);
+			File file = new File(fileName);
+			int fileSize = (int)file.length();
+			toServer.println(fileName);
+			toServer.println(fileSize);
 
-			byte[] buffer = new byte[filesize];
+			byte[] buffer = new byte[fileSize];
 			FileInputStream fin = new FileInputStream(file);
 			BufferedInputStream bin = new BufferedInputStream(fin);
-			bin.read(buffer, 0, buffer.length);
+			bin.read(buffer, 0, fileSize);
 
-			os.write(buffer, 0, filesize);
+			os.write(buffer, 0, fileSize);
 			os.flush();
 
 			bin.close();
 			fin.close();
+			System.out.println("file " + fileName + " sent");
+		}
+		catch (Exception e){
+			System.out.println("send file error");
+		}
+	}
+
+	public void receiveFile(){
+		try {
+			toServer.println("receiveFile");
+			String fileName = fromServer.readLine();
+			int fileSize = Integer.parseInt(fromServer.readLine());
+
+			byte[] buffer = new byte[fileSize];
+			FileOutputStream fout = new FileOutputStream(fileName);
+			BufferedOutputStream bout = new BufferedOutputStream(fout);
+
+			int byteRead = 0;
+			for (int i = 0; i < fileSize;){
+				byteRead = is.read(buffer, 0, fileSize);
+				bout.write(buffer, 0, byteRead);
+				i += byteRead;
+				System.out.format("%.1f%% complete%n", i * 1.0 / fileSize * 100);
+			}
+			bout.flush();
+			bout.close();
+			fout.close();
+			System.out.format("file %s: %d bytes received%n", fileName, fileSize);
 		}
 		catch (Exception e){
 			System.out.println("send file error");
@@ -203,9 +231,9 @@ public class Client{
 
 	public void run(){
 		createSocket();
-
+		String command, password;
+		String name = "";
 		boolean isLoginOrRegister = false;
-		String command, name, password;
 		try {
 			// login or register
 			while(!isLoginOrRegister){
@@ -238,10 +266,10 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
-			createChatRoom("Yo man");
-			enterChatRoom("Yo man");
+			//createChatRoom("Yo man");
+			//enterChatRoom("Yo man");
 
-/*
+
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -250,17 +278,12 @@ public class Client{
 					break;
 				}
 			}
-
-
-		
 	//		selectTarget("Nicky");
-
-/*
-			toServer.println("111");
-			toServer.println("222");
-			System.out.println(fromServer.readLine());
-*/
-//			sendFile("file");
+			
+			if (name.equals("Nicky"))
+				sendFile("old.jpg");
+			else
+				receiveFile();
 
 			String message;
 			while (true){

@@ -1,5 +1,6 @@
 class ChatRoom{
-	static public int chatRoomNum = 0;
+	public final static int MAXCHATROOMNUM = 30;
+	public static int chatRoomNum = 0;
 	public int memberNum;
 	public int[] memberIDs = new int[100];
 	private String chatRoomName;

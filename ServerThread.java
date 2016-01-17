@@ -3,12 +3,12 @@ import java.net.*;
 
 public class ServerThread extends Thread{
 
-	private static final int MAXUSERNUM = 30;
-	private static final int MAXCHATROOMNUM = 30;
+	private static final int MAXUSERNUM = User.MAXUSERNUM;
+	private static final int MAXCHATROOMNUM = ChatRoom.MAXCHATROOMNUM;
 	private static User[] users = new User[MAXUSERNUM];
 	private static ChatRoom[] chatRooms = new ChatRoom[MAXCHATROOMNUM];
-	private static String[][] mailbox = new String[MAXUSERNUM][MAXUSERNUM];
-	private static boolean[][] hasNewMessage = new boolean[MAXUSERNUM][MAXUSERNUM];
+//	private static String[][] mailbox = new String[MAXUSERNUM][MAXUSERNUM];
+//	private static boolean[][] hasNewMessage = new boolean[MAXUSERNUM][MAXUSERNUM];
 	private Socket socket, fileSocket;
 	private ServerSocket fileServerSocket;
 	private PrintWriter toClient;
@@ -17,6 +17,7 @@ public class ServerThread extends Thread{
 	private InputStream is;
 	private OutputStream os;
 	private boolean inChatRoom = false;
+	private String userName;
 
 	public ServerThread(Socket socket, User[] users, ChatRoom[] chatRooms){
 		this.socket = socket;
@@ -46,6 +47,7 @@ public class ServerThread extends Thread{
 						toClient.println(i);
 						users[i].setOnline();
 						userID = i;
+						userName = name;
 						return;
 					}
 				}
@@ -83,6 +85,7 @@ public class ServerThread extends Thread{
 				System.out.format("%d name: %s, password: %s is registered%n", id, name, password);
 				toClient.println(id);
 				userID = id;
+				userName = name;
 				return;
 			}
 		}
@@ -178,6 +181,8 @@ public class ServerThread extends Thread{
 			String message = fromClient.readLine();
 			if (!inChatRoom){
 				System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
+				users[targetUserID].putMessage(userID, userName, message);
+				/*
 				if (hasNewMessage[userID][targetUserID]){
 					mailbox[userID][targetUserID] += "\n";
 					mailbox[userID][targetUserID] += message;
@@ -186,11 +191,14 @@ public class ServerThread extends Thread{
 					mailbox[userID][targetUserID] = message;
 					hasNewMessage[userID][targetUserID] = true;
 				}
+				*/
 			}
 			else {
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
 				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
 					System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
+					users[memberIDs[i]].putMessage(userID, userName, message);
+					/*
 					if (hasNewMessage[userID][memberIDs[i]]){
 						mailbox[userID][memberIDs[i]] += "\n";
 						mailbox[userID][memberIDs[i]] += message;
@@ -199,6 +207,7 @@ public class ServerThread extends Thread{
 						mailbox[userID][memberIDs[i]] = message;
 						hasNewMessage[userID][memberIDs[i]] = true;
 					}
+					*/
 				}
 			}
 		}
@@ -211,6 +220,8 @@ public class ServerThread extends Thread{
 		try {
 			String message;
 			if (!inChatRoom){
+				toClient.println(users[userID].getMessage(targetUserID));
+				/*
 				if (hasNewMessage[targetUserID][userID]){
 					message = mailbox[targetUserID][userID];
 					hasNewMessage[targetUserID][userID] = false;
@@ -218,15 +229,26 @@ public class ServerThread extends Thread{
 				}
 				else
 					toClient.println("");
+				*/
 			}
 			else {
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
 				message = "";
-				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++)
+				String token = "";
+				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
+					token = users[userID].getMessage(memberIDs[i]);
+					if (token.length() != 0){
+						message += token;
+						message += "\n";
+					}
+				}
+					
+					/*
 					if (hasNewMessage[memberIDs[i]][userID]){
 						message += mailbox[memberIDs[i]][userID];
 						hasNewMessage[memberIDs[i]][userID] = false;
 					}
+					*/
 				toClient.println(message);
 			}
 		}
@@ -235,82 +257,89 @@ public class ServerThread extends Thread{
 		}
 	}
 
+	//this is for server receive file and put in fileBox
+	private void sendFile(){
+		try {
+			String fileName = fromClient.readLine();
+			int fileSize = Integer.parseInt(fromClient.readLine());
+			byte[] buffer = new byte[fileSize];
+
+			int byteRead = 0;
+			for (int i = 0; i < fileSize;){
+				byteRead = is.read(buffer, i, fileSize - i);
+				i += byteRead;
+				System.out.format("%.1f%% complete%n", i * 1.0 / fileSize * 100);
+			}
+
+			users[targetUserID].putFile(fileName, fileSize, buffer);
+			System.out.format("file %s: %d bytes received%n", fileName, fileSize);
+		}
+		catch (Exception e){
+			System.out.println("put file in box error");
+		}
+	}
+
+	//this is for server send file
+	private void receiveFile(){
+		try {
+			String fileName = users[userID].getFileName();
+			int fileSize = users[userID].getFileSize();
+			byte[] file = users[userID].getFile();
+
+			System.out.println("server sending file " + fileName + "...");
+
+			toClient.println(fileName);
+			toClient.println(fileSize);
+
+			os.write(file, 0, fileSize);
+			os.flush();
+		}
+		catch (Exception e){
+			System.out.println("server send file error");
+		}
+
+	}
+
+	private void logout(){
+		System.out.println("User " + users[userID].getName() + " logged out...");
+		try {
+			is.close();
+			os.close();
+			fileSocket.close();
+			fileServerSocket.close();
+			socket.close();
+			users[userID].setOffline();
+		}
+		catch (Exception e){
+			System.out.println("log out error");
+		}
+	}
+
 	private void startChat(){
 		String command = "nothing";
-		String targetName = new String();
-		String onlineResult = new String();
-		String message = new String();
-
-		System.out.println(userID);
-		System.out.println(hasNewMessage[0][userID]);
-
 		while(true){
 			try{
-				if (fromClient.ready())
-					command = fromClient.readLine();
-				if (command.equals("checkOnline")){
+				command = fromClient.readLine();
+				if (command.equals("checkOnline"))
 					checkOnline();
-					command = "nothing";
-				}
-				else if (command.equals("selectTarget")){
+				else if (command.equals("selectTarget"))
 					selectTarget();
-					command = "nothing";
-				}
-				else if (command.equals("createChatRoom")){
+				else if (command.equals("createChatRoom"))
 					createChatRoom();
-					command = "nothing";
-				}
-				else if (command.equals("enterChatRoom")){
+				else if (command.equals("enterChatRoom"))
 					enterChatRoom();
-					command = "nothing";
-				}
-				else if(command.equals("send")){
+				else if(command.equals("send"))
 					send();
-					command = "nothing";
-				}
-				else if(command.equals("receive")){
+				else if(command.equals("receive"))
 					receive();
-					command = "nothing";
-				}
-				else if(command.equals("sendFile")){
-					String filename = fromClient.readLine();
-					int filesize = Integer.parseInt(fromClient.readLine());
-
-					byte[] buffer = new byte[filesize];
-					FileOutputStream fout = new FileOutputStream("file2");
-					BufferedOutputStream bout = new BufferedOutputStream(fout);
-
-					int byteRead = 0;
-					for (int i = 0; i < filesize;){
-						byteRead = is.read(buffer, 0, filesize);
-						bout.write(buffer, 0, byteRead);
-						i += byteRead;
-						System.out.format("%.1f%% complete%n", i * 1.0 / filesize * 100);
-					}
-					bout.flush();
-					bout.close();
-					fout.close();
-					System.out.format("file %s: %d bytes received%n", filename, filesize);
-
-					command = "nothing";
-				}
-				else if(command.equals("receiveFile")){
-
-
-					command = "nothing";
-				}
+				else if(command.equals("sendFile"))
+					sendFile();			
+				else if(command.equals("receiveFile"))
+					receiveFile();
 				else if (command.equals("logout")){
-					//close all sockets, setOffline
-					System.out.println("User " + users[userID].getName() + " logged out...");
-					is.close();
-					os.close();
-					fileSocket.close();
-					fileServerSocket.close();
-					socket.close();
-					users[userID].setOffline();
+					logout();
 					return;
 				}
-
 			}
 			catch(Exception e){
 				System.out.println("chat error");
