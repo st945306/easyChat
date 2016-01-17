@@ -176,6 +176,17 @@ public class ServerThread extends Thread{
 		}
 	}
 
+	private void getChatRoomMember(){
+		try {
+			toClient.println(chatRooms[chatRoomID].memberNum);
+			for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++)
+				toClient.println(users[chatRooms[chatRoomID].memberIDs[i]].getName());	
+		}
+		catch(Exception e){
+			System.out.println("get chat room member error");
+		}
+	}
+
 	private void send(){
 		try {
 			String message = fromClient.readLine();
@@ -328,6 +339,8 @@ public class ServerThread extends Thread{
 					createChatRoom();
 				else if (command.equals("enterChatRoom"))
 					enterChatRoom();
+				else if (command.equals("getChatRoomMember"))
+					getChatRoomMember();
 				else if(command.equals("send"))
 					send();
 				else if(command.equals("receive"))

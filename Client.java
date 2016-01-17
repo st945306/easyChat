@@ -149,6 +149,22 @@ public class Client{
 
 	}
 
+	public String[] getChatRoomMember(){
+		try {
+			toServer.println("getChatRoomMember");
+			int memberNum = Integer.parseInt(fromServer.readLine());
+			String[] members = new String[memberNum];
+			for (int i = 0; i < memberNum; i++)
+				members[i] = fromServer.readLine();
+			return members;
+		}
+		catch(Exception e){
+			System.out.println("get chat room member error");
+			System.exit(0);
+			return new String[1];
+		}
+	}
+
 	public void send(String message){
 		try{
 			toServer.println("send");
@@ -266,9 +282,11 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
-			//createChatRoom("Yo man");
-			//enterChatRoom("Yo man");
-
+			createChatRoom("Yo man");
+			enterChatRoom("Yo man");
+			String[] members = getChatRoomMember();
+			for (int i = 0; i < members.length; i++)
+				System.out.println(members[i]);
 
 			while (true){
 				System.out.print("Who do you want to chat with? ");
@@ -279,12 +297,12 @@ public class Client{
 				}
 			}
 	//		selectTarget("Nicky");
-			
+	/*		
 			if (name.equals("Nicky"))
 				sendFile("old.jpg");
 			else
 				receiveFile();
-
+	*/
 			String message;
 			while (true){
 				if (fromUser.ready()){
