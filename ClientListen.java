@@ -19,14 +19,14 @@ public class ClientListen extends Thread {
 	public void run() {
 		System.out.println("Client listen starts");
 		while(clientGUI.isListening) {
-			//don't do anything while processing sending
-			if(clientGUI.isSending) continue;
+			//don't do anything while processing sending/checking online
+			if(clientGUI.isSending || clientGUI.isCheckingOnline) continue;
 
 			//get messages
 			msg = client.receive();
 			if(msg.length() == 0)
 				continue;
-			msgToDisplay.append(targetUser + ": " + msg + "\n");
+			msgToDisplay.append(msg + "\n");
 		}
 		System.out.println("Client listen terminates");
 	}

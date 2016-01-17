@@ -18,6 +18,7 @@ public class ClientGUI {
 	Client client;
 	ClientListen clientlisten;
 	public static Boolean isListening = false;
+	public static Boolean isCheckingOnline = false;
 	public static Boolean isSending = false;
 	Boolean isLogin = false;
 	JFrame startFrame, registrationFrame, selectTargetFrame, createChatroomFrame, sendAndListenFrame;
@@ -309,12 +310,14 @@ public class ClientGUI {
 			ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
+		isTargetUserOnline.setText("isTargetUserOnline Label");
+		isTargetUserOnline.setFont(new Font("Arial", Font.PLAIN, 16));
 		msgToSend.setFont(new Font("Arial", Font.PLAIN, 16));
 		Border textAreaBorder = BorderFactory.createLineBorder(Color.GRAY);
 		msgToDisplay.setBorder(BorderFactory.createCompoundBorder(textAreaBorder, 
             BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 		msgToDisplay.setEditable(false);
-		msgToDisplay.setFont(new Font("Arial", Font.PLAIN, 22));
+		msgToDisplay.setFont(new Font("Arial", Font.PLAIN, 20));
 		msgToDisplay.setLineWrap(true);
 		msgToDisplay.setWrapStyleWord(true);
 		btnSendMsg.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -421,6 +424,7 @@ public class ClientGUI {
 			if(client.selectTarget(selectUserTextField.getText())) {
 				targetUser = selectUserTextField.getText();
 				isListening = true;
+				startCheckOnline();
 				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
 				clientlisten.start();
 				sendAndListenFrame.setTitle(targetUser);
@@ -466,13 +470,7 @@ public class ClientGUI {
 			isSending = false;
 			msgToSend.requestFocus();
 			msgToSend.setText("");
-
-			//additional function: check if target is online
-			//not truly implemented yet
-			/*if(client.checkOnline(targetUser) == 1)
-				isTargetUserOnline.setText(targetUser + " is online");
-			else
-				isTargetUserOnline.setText(targetUser + " is offline");*/
+			startCheckOnline();
 		}
 	}
 
@@ -483,5 +481,18 @@ public class ClientGUI {
 			selectTargetFrame.setVisible(true);
 			sendAndListenFrame.setVisible(false);
 		}
+	}
+
+	private void startCheckOnline() {
+		isCheckingOnline = true;
+		if(client.checkOnline(targetUser) == 1) {
+			isTargetUserOnline.setText(targetUser + " is online");
+			isTargetUserOnline.setForeground(Color.green);
+		}
+		else {
+			isTargetUserOnline.setText(targetUser + " is offline");
+			isTargetUserOnline.setForeground(Color.gray);
+		}
+		isCheckingOnline = false;
 	}
 }
