@@ -4,7 +4,7 @@ public class User{
 	private String[] mailbox = new String[MAXUSERNUM];
 	private boolean[] hasNewMessage = new boolean[MAXUSERNUM];
 	private byte[] filebox = new byte[MAXFILESIZE];
-	private boolean[] hasNewFile = new boolean[MAXUSERNUM];
+	public boolean hasNewFile;
 	static int userNum;
 	private int id;
 	private String name;
@@ -74,6 +74,7 @@ public class User{
 		this.fileName = "new.jpg";
 		this.fileSize = fileSize;
 		this.filebox = file;
+		this.hasNewFile = true;
 	}
 
 	public int getFileSize(){
@@ -85,6 +86,7 @@ public class User{
 	}
 
 	public byte[] getFile(){
+		this.hasNewFile = false;
 		return filebox;
 	}
 }

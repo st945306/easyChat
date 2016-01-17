@@ -293,6 +293,12 @@ public class ServerThread extends Thread{
 	//this is for server send file
 	private void receiveFile(){
 		try {
+			if (!users[userID].hasNewFile){
+				toClient.println("noFile");
+				return;
+			}
+			toClient.println("hasFile");
+
 			String fileName = users[userID].getFileName();
 			int fileSize = users[userID].getFileSize();
 			byte[] file = users[userID].getFile();

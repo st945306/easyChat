@@ -214,9 +214,12 @@ public class Client{
 		}
 	}
 
-	public void receiveFile(){
+	public boolean receiveFile(){
 		try {
 			toServer.println("receiveFile");
+			String status = fromServer.readLine();
+			if (status.equals("noFile"))
+				return false;
 			String fileName = fromServer.readLine();
 			int fileSize = Integer.parseInt(fromServer.readLine());
 
@@ -235,9 +238,11 @@ public class Client{
 			bout.close();
 			fout.close();
 			System.out.format("file %s: %d bytes received%n", fileName, fileSize);
+			return true;
 		}
 		catch (Exception e){
-			System.out.println("send file error");
+			System.out.println("receive file error");
+			return false;
 		}
 	}
 
@@ -282,12 +287,13 @@ public class Client{
 			System.out.println(checkOnline("Ryan"));
 			System.out.println(checkOnline("Nicky"));
 
+/*
 			createChatRoom("Yo man");
 			enterChatRoom("Yo man");
 			String[] members = getChatRoomMember();
 			for (int i = 0; i < members.length; i++)
 				System.out.println(members[i]);
-
+*/
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -297,12 +303,13 @@ public class Client{
 				}
 			}
 	//		selectTarget("Nicky");
-	/*		
+			
 			if (name.equals("Nicky"))
 				sendFile("old.jpg");
 			else
-				receiveFile();
-	*/
+				if (!receiveFile())
+					System.out.println("no new file!");
+	
 			String message;
 			while (true){
 				if (fromUser.ready()){
