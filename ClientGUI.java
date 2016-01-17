@@ -6,7 +6,6 @@
 	padding of JButton
 
 	to-do list:
-	add a link at the bottom
 	cannot connect to the server
 */
 import java.awt.*;
@@ -21,8 +20,8 @@ public class ClientGUI {
 	public static Boolean isListening = false;
 	public static Boolean isSending = false;
 	Boolean isLogin = false;
-	JFrame startFrame, registrationFrame, selectTargetFrame, sendAndListenFrame;
-	JTextField usernameTextField, r_usernameTextField, selectUserTextField, msgToSend;
+	JFrame startFrame, registrationFrame, selectTargetFrame, createChatroomFrame, sendAndListenFrame;
+	JTextField usernameTextField, r_usernameTextField, selectUserTextField, createChatroomTextField, msgToSend;
 	JPasswordField passwordField, r_passwordField;
 	JLabel isTargetUserOnline;
 	JTextArea msgToDisplay;
@@ -37,9 +36,10 @@ public class ClientGUI {
 		client = new Client();
 		client.createSocket();
 
-		startFrame = new JFrame("start");
-		registrationFrame = new JFrame("registration");
-		selectTargetFrame = new JFrame("select target");
+		startFrame = new JFrame("EasyChat");
+		registrationFrame = new JFrame("Registration");
+		selectTargetFrame = new JFrame("Select Target");
+		createChatroomFrame = new JFrame("Create Chatroom");
 		sendAndListenFrame = new JFrame("");
 
 		//startFrame
@@ -184,22 +184,22 @@ public class ClientGUI {
 		registrationFrame.setLocationRelativeTo(null);
 
 		//selectTargetFrame
-		JLabel selectUser = new JLabel("Select Target User");
+		JLabel selectUser = new JLabel("Please enter the target user");
 		selectUserTextField = new JTextField(16);
 		JButton btnSelectUser = new JButton("Confirm");
-		JLabel createChatroom = new JLabel("or Create a Chatroom!");
+		JLabel gotoCreateChatroom = new JLabel("or Create a chatroom!");
 
 		selectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 		selectUserTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
-		createChatroom.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		createChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
-		createChatroom.setForeground(Color.blue);
+		gotoCreateChatroom.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		gotoCreateChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		gotoCreateChatroom.setForeground(Color.blue);
 
 		selectTargetFrame.addWindowListener(new closeHandler());
 		btnSelectUser.addActionListener(new selectUserListener());
 		selectUserTextField.addActionListener(new selectUserListener());
-		createChatroom.addMouseListener(new gotoCreateChatroomListener());
+		gotoCreateChatroom.addMouseListener(new gotoCreateChatroomListener());
 
 		GroupLayout selectUserLayout = new GroupLayout(selectTargetFrame.getContentPane());
         selectTargetFrame.getContentPane().setLayout(selectUserLayout);
@@ -217,7 +217,7 @@ public class ClientGUI {
 					.addComponent(btnSelectUser)
 				)
 				.addGap(15)
-				.addComponent(createChatroom)
+				.addComponent(gotoCreateChatroom)
 			)
 			.addGap(20)
 		);
@@ -232,7 +232,7 @@ public class ClientGUI {
 			.addGap(10)
 			.addComponent(btnSelectUser)
 			.addGap(15)
-			.addComponent(createChatroom)
+			.addComponent(gotoCreateChatroom)
 			.addGap(20)
 		);
 
@@ -240,6 +240,64 @@ public class ClientGUI {
         selectTargetFrame.setResizable(false);
 		selectTargetFrame.setLocationRelativeTo(null);
 		selectTargetFrame.setVisible(false);
+
+		//createChatroomFrame
+		JLabel createChatroom = new JLabel("Please enter the chatroom name");
+		createChatroomTextField = new JTextField(16);
+		JButton btnCreateChatroom = new JButton("Confirm");
+		JLabel gotoSelectTarget = new JLabel("or Select a target to chat with!");
+
+		createChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		createChatroomTextField.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnCreateChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		gotoSelectTarget.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		gotoSelectTarget.setFont(new Font("Arial", Font.PLAIN, 16));
+		gotoSelectTarget.setForeground(Color.blue);
+
+		createChatroomFrame.addWindowListener(new closeHandler());
+		btnCreateChatroom.addActionListener(new createChatroomListener());
+		createChatroomTextField.addActionListener(new createChatroomListener());
+		gotoSelectTarget.addMouseListener(new gotoSelectTargetListener());
+
+		GroupLayout createChatroomLayout = new GroupLayout(createChatroomFrame.getContentPane());
+        createChatroomFrame.getContentPane().setLayout(createChatroomLayout);
+
+		createChatroomLayout.setHorizontalGroup(createChatroomLayout.createSequentialGroup()
+			.addGap(20)
+			.addGroup(createChatroomLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addGroup(createChatroomLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+					.addGroup(createChatroomLayout.createSequentialGroup()
+						.addComponent(createChatroom)
+						.addGap(10)
+						.addComponent(createChatroomTextField)
+					)
+					.addGap(10)
+					.addComponent(btnCreateChatroom)
+				)
+				.addGap(15)
+				.addComponent(gotoSelectTarget)
+			)
+			.addGap(20)
+		);
+
+		createChatroomLayout.setVerticalGroup(createChatroomLayout.createSequentialGroup()
+			.addGap(20)
+			.addGroup(createChatroomLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(createChatroom)
+				.addGap(10)
+				.addComponent(createChatroomTextField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+			)
+			.addGap(10)
+			.addComponent(btnCreateChatroom)
+			.addGap(15)
+			.addComponent(gotoSelectTarget)
+			.addGap(20)
+		);
+
+		createChatroomFrame.pack();
+        createChatroomFrame.setResizable(false);
+		createChatroomFrame.setLocationRelativeTo(null);
+		createChatroomFrame.setVisible(false);
 
 		//sendAndListenFrame
 		isTargetUserOnline = new JLabel();
@@ -377,16 +435,32 @@ public class ClientGUI {
 		}
 	}
 
+	class createChatroomListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			if(client.createChatRoom(createChatroomTextField.getText()))
+				System.out.println("CREATE CHAT ROOM " + createChatroomTextField.getText());
+		}	
+	}
+
 	class gotoCreateChatroomListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
-			JOptionPane.showMessageDialog(null, "Not implemented yet!", "Info", JOptionPane.INFORMATION_MESSAGE);
+			createChatroomFrame.setVisible(true);
+			selectTargetFrame.setVisible(false);
+		}
+	}
+
+	class gotoSelectTargetListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+			selectTargetFrame.setVisible(true);
+			createChatroomFrame.setVisible(false);
 		}
 	}
 
 	class sendMsgListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			String msg = msgToSend.getText();
-			msgToDisplay.append("Me: " + msg + "\n");
+			if(msg != "")
+				msgToDisplay.append("Me: " + msg + "\n");
 			isSending = true;
 			client.send(msg);
 			isSending = false;
