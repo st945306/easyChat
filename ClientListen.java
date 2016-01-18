@@ -19,8 +19,7 @@ public class ClientListen extends Thread {
 	public void run() {
 		System.out.println("Client listen starts");
 		while(clientGUI.isListening) {
-			//don't do anything while processing sending/checking online
-			if(clientGUI.isSending || clientGUI.isCheckingOnline) continue;
+			if(clientGUI.isSending || clientGUI.isCheckingOnline || clientGUI.isGettingChatroomUserList) continue;
 
 			//get messages
 			msg = client.receive();
