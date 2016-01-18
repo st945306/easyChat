@@ -372,7 +372,7 @@ public class ClientGUI {
 		sendAndListenFrame.setLocationRelativeTo(null);
 		sendAndListenFrame.setVisible(false);
 
-		//createChatroomFrame
+		//chatroomFrame
 		msgToSend_chatroom = new JTextField();
 		msgToDisplay_chatroom = new JTextArea(30, 40);
 		JButton btnSendMsg_chatroom = new JButton("Send");
@@ -393,9 +393,9 @@ public class ClientGUI {
 		btnReSelectUser_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		chatroomFrame.addWindowListener(new closeHandler());
-		//btnSendMsg_chatroom.addActionListener(new sendMsgListener());
-		//msgToSend_chatroom.addActionListener(new sendMsgListener());
-		//btnReSelectUser_chatroom.addActionListener(new reSelectUserListener());
+		btnSendMsg_chatroom.addActionListener(new sendMsg_chatroom_Listener());
+		msgToSend_chatroom.addActionListener(new sendMsg_chatroom_Listener());
+		btnReSelectUser_chatroom.addActionListener(new reSelectUser_chatroom_Listener());
 
 		GroupLayout chatroomLayout = new GroupLayout(chatroomFrame.getContentPane());
         chatroomFrame.getContentPane().setLayout(chatroomLayout);
@@ -405,9 +405,13 @@ public class ClientGUI {
 			.addGroup(chatroomLayout.createParallelGroup()
 				.addComponent(scrollPanel_chatroom)
 				.addGap(10)
+				.addComponent(msgToSend_chatroom)
+			)
+			.addGap(10)
+			.addGroup(chatroomLayout.createParallelGroup()
+				//online user num
+				//online user list
 				.addGroup(chatroomLayout.createSequentialGroup()
-					.addComponent(msgToSend_chatroom)
-					.addGap(10)
 					.addComponent(btnSendMsg_chatroom)
 					.addGap(5)
 					.addComponent(btnReSelectUser_chatroom)
@@ -506,13 +510,17 @@ public class ClientGUI {
 
 	class createChatroomListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if(client.createChatRoom(createChatroomTextField.getText())) {
-				chatroomFrame.setVisible(true);
-				createChatroomFrame.setVisible(false);
-			}
-			else { //chatroom has existed
-				JOptionPane.showMessageDialog(null, "Chatroom \"" + createChatroomTextField.getText() + " has existed!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			if(!client.createChatRoom(createChatroomTextField.getText()))
+				client.enterChatRoom(createChatroomTextField.getText()); //chatroom has existed
+
+			isListening = true;
+			clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
+			clientlisten.start();
+			chatroomFrame.setTitle("Chatroom: " + createChatroomTextField.getText());
+			createChatroomTextField.setText("");
+			msgToSend_chatroom.requestFocus();
+			chatroomFrame.setVisible(true);
+			createChatroomFrame.setVisible(false);
 		}	
 	}
 
@@ -550,6 +558,32 @@ public class ClientGUI {
 			selectUserTextField.requestFocus();
 			selectTargetFrame.setVisible(true);
 			sendAndListenFrame.setVisible(false);
+		}
+	}
+
+	class sendMsg_chatroom_Listener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			String msg = msgToSend_chatroom.getText();
+			if(msg != "")
+				msgToDisplay_chatroom.append("Me: " + msg + "\n");
+			isSending = true;
+			client.send(msg);
+			isSending = false;
+			msgToSend_chatroom.requestFocus();
+			msgToSend_chatroom.setText("");
+		}
+	}
+
+	class reSelectUser_chatroom_Listener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			int dialogResult = JOptionPane.showConfirmDialog (null, "All messages will be cleared.\nAre you sure to go back?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if(dialogResult == JOptionPane.YES_OPTION) {
+				isListening = false;
+				msgToDisplay_chatroom.setText("");
+				createChatroomTextField.requestFocus();
+				createChatroomFrame.setVisible(true);
+				chatroomFrame.setVisible(false);
+			}
 		}
 	}
 
