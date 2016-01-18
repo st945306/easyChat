@@ -20,6 +20,7 @@ public class ClientGUI {
 	public static Boolean isListening = false;
 	public static Boolean isCheckingOnline = false;
 	public static Boolean isSending = false;
+	public static Boolean isGettingChatroomUserList = false;
 	Boolean isLogin = false;
 	JFrame startFrame, registrationFrame, selectTargetFrame, 
 	createChatroomFrame, sendAndListenFrame, chatroomFrame;
@@ -27,8 +28,10 @@ public class ClientGUI {
 	createChatroomTextField, msgToSend, msgToSend_chatroom;
 	JPasswordField passwordField, r_passwordField;
 	JLabel isTargetUserOnline;
+	//JLabel chatroomOnlineUserNum;
 	JTextArea msgToDisplay, msgToDisplay_chatroom;
 	String targetUser;
+	//String[] chatroomUsers;
 
 	public static void main(String[] args) {
 		clientGUI = new ClientGUI();
@@ -373,14 +376,16 @@ public class ClientGUI {
 		sendAndListenFrame.setVisible(false);
 
 		//chatroomFrame
+		//chatroomOnlineUserNum = new JLabel();
 		msgToSend_chatroom = new JTextField();
 		msgToDisplay_chatroom = new JTextArea(30, 40);
 		JButton btnSendMsg_chatroom = new JButton("Send");
 		JButton btnReSelectUser_chatroom = new JButton("Go Back");
 		JScrollPane scrollPanel_chatroom = new JScrollPane(msgToDisplay_chatroom, 
-		ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
-		ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
+			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
+		//chatroomOnlineUserNum.setFont(new Font("Arial", Font.PLAIN, 16));
 		msgToSend_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		Border textAreaBorder_chatroom = BorderFactory.createLineBorder(Color.GRAY);
 		msgToDisplay_chatroom.setBorder(BorderFactory.createCompoundBorder(textAreaBorder_chatroom, 
@@ -409,7 +414,7 @@ public class ClientGUI {
 			)
 			.addGap(10)
 			.addGroup(chatroomLayout.createParallelGroup()
-				//online user num
+				//.addComponent(chatroomOnlineUserNum)
 				//online user list
 				.addGroup(chatroomLayout.createSequentialGroup()
 					.addComponent(btnSendMsg_chatroom)
@@ -423,6 +428,13 @@ public class ClientGUI {
 		chatroomLayout.setVerticalGroup(chatroomLayout.createSequentialGroup()
 			.addGap(20)
 			.addComponent(scrollPanel_chatroom)
+			/*
+			.addGroup(chatroomLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(scrollPanel_chatroom)
+				.addGap(10)
+				.addComponent(chatroomOnlineUserNum)
+			)
+			*/
 			.addGap(10)
 			.addGroup(chatroomLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 				.addComponent(msgToSend_chatroom, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
@@ -510,8 +522,8 @@ public class ClientGUI {
 
 	class createChatroomListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if(!client.createChatRoom(createChatroomTextField.getText()))
-				client.enterChatRoom(createChatroomTextField.getText()); //chatroom has existed
+			client.createChatRoom(createChatroomTextField.getText());
+			client.enterChatRoom(createChatroomTextField.getText());
 
 			isListening = true;
 			clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
@@ -521,8 +533,28 @@ public class ClientGUI {
 			msgToSend_chatroom.requestFocus();
 			chatroomFrame.setVisible(true);
 			createChatroomFrame.setVisible(false);
+			/*
+			getChatroomUserList();
+			updateChatroomUserList();
+			*/
 		}	
 	}
+
+	/*
+	private void getChatroomUserList() {
+		isGettingChatroomUserList = true;
+		chatroomUsers = client.getChatRoomMember();
+		isGettingChatroomUserList = false;
+	}
+
+	private void updateChatroomUserList() {
+		int userNum = chatroomUsers.length;
+		if(userNum <= 1)
+			chatroomOnlineUserNum.setText(userNum + " user online");
+		else
+			chatroomOnlineUserNum.setText(userNum + " users online");
+	}
+	*/
 
 	class gotoCreateChatroomListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
@@ -571,6 +603,10 @@ public class ClientGUI {
 			isSending = false;
 			msgToSend_chatroom.requestFocus();
 			msgToSend_chatroom.setText("");
+			/*
+			getChatroomUserList();
+			updateChatroomUserList();
+			*/
 		}
 	}
 
