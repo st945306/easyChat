@@ -2,8 +2,9 @@ public class User{
 	public static final int MAXUSERNUM = 10;
 	public static final int MAXFILESIZE = 30000000;	//30mb
 	private String[] mailbox = new String[MAXUSERNUM];
-	
+	private String[] chatRoomMailbox = new String[ChatRoom.MAXCHATROOMNUM];
 	private boolean[] hasNewMessage = new boolean[MAXUSERNUM];
+	private boolean[] chatRoomHasNewMessage = new boolean[ChatRoom.MAXCHATROOMNUM];
 	private byte[] filebox = new byte[MAXFILESIZE];
 	public boolean hasNewFile;
 	static int userNum;
@@ -51,22 +52,39 @@ public class User{
 		return this.online;
 	}
 
-	public void putMessage(int fromUserID, String userName, String message){
+	public void putMessage(boolean inChatRoom, int fromID, String userName, String message){
 		message = userName + ": " + message;
-		if (hasNewMessage[fromUserID]){
-			mailbox[fromUserID] += "\n";
-			mailbox[fromUserID] += message;
-		}
-		else {
-			mailbox[fromUserID] = message;
-			hasNewMessage[fromUserID] = true;
-		}
+		if (!inChatRoom)
+			if (hasNewMessage[fromID]){
+				mailbox[fromID] += "\n";
+				mailbox[fromID] += message;
+			}
+			else {
+				mailbox[fromID] = message;
+				hasNewMessage[fromID] = true;
+			}
+		else
+			if (chatRoomHasNewMessage[fromID]){
+				chatRoomMailbox[fromID] += "\n";
+				chatRoomMailbox[fromID] += message;
+			}
+			else {
+				chatRoomMailbox[fromID] = message;
+				chatRoomHasNewMessage[fromID] = true;
+			}
 	}
 
-	public String getMessage(int fromUserID){
-		if (hasNewMessage[fromUserID]){
-			hasNewMessage[fromUserID] = false;
-			return mailbox[fromUserID];
+	public String getMessage(boolean inChatRoom, int fromID){
+		if (inChatRoom)
+			if (hasNewMessage[fromID]){
+				hasNewMessage[fromID] = false;
+				return mailbox[fromID];
+			}
+		else {
+			if (chatRoomHasNewMessage[fromID]){
+				chatRoomHasNewMessage[fromID] = false;
+				return chatRoomMailbox[fromID];
+			}
 		}
 		return "";
 	}

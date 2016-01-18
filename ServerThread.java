@@ -192,7 +192,7 @@ public class ServerThread extends Thread{
 			String message = fromClient.readLine();
 			if (!inChatRoom){
 				System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
-				users[targetUserID].putMessage(userID, userName, message);
+				users[targetUserID].putMessage(false, userID, userName, message);
 				/*
 				if (hasNewMessage[userID][targetUserID]){
 					mailbox[userID][targetUserID] += "\n";
@@ -210,7 +210,7 @@ public class ServerThread extends Thread{
 					if (userID == memberIDs[i])
 						continue;
 					System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
-					users[memberIDs[i]].putMessage(userID, userName, message);
+					users[memberIDs[i]].putMessage(true, chatRoomID, userName, message);
 					/*
 					if (hasNewMessage[userID][memberIDs[i]]){
 						mailbox[userID][memberIDs[i]] += "\n";
@@ -233,7 +233,7 @@ public class ServerThread extends Thread{
 		try {
 			String message;
 			if (!inChatRoom){
-				toClient.println(users[userID].getMessage(targetUserID));
+				toClient.println(users[userID].getMessage(false, targetUserID));
 				/*
 				if (hasNewMessage[targetUserID][userID]){
 					message = mailbox[targetUserID][userID];
@@ -245,6 +245,7 @@ public class ServerThread extends Thread{
 				*/
 			}
 			else {
+				/*
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
 				message = "";
 				String token = "";
@@ -262,7 +263,7 @@ public class ServerThread extends Thread{
 						hasNewMessage[memberIDs[i]][userID] = false;
 					}
 					*/
-				toClient.println(message);
+				toClient.println(users[userID].getMessage(true, chatRoomID));
 			}
 		}
 		catch(Exception e){
