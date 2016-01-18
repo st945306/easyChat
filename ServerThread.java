@@ -207,6 +207,8 @@ public class ServerThread extends Thread{
 			else {
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
 				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
+					if (userID == memberIDs[i])
+						continue;
 					System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
 					users[memberIDs[i]].putMessage(userID, userName, message);
 					/*

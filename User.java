@@ -2,6 +2,7 @@ public class User{
 	public static final int MAXUSERNUM = 10;
 	public static final int MAXFILESIZE = 30000000;	//30mb
 	private String[] mailbox = new String[MAXUSERNUM];
+	
 	private boolean[] hasNewMessage = new boolean[MAXUSERNUM];
 	private byte[] filebox = new byte[MAXFILESIZE];
 	public boolean hasNewFile;
