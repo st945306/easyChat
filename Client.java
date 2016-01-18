@@ -10,6 +10,8 @@ public class Client{
 	private int userID;
 	private InputStream is;
 	private OutputStream os;
+	private String targetUserName, chatRoomName;
+	private boolean inChatRoom;
 
 	public static void main(String argv[]){
 		Client client = new Client();
@@ -89,6 +91,7 @@ public class Client{
 
 	public boolean selectTarget(String targetName){
 		String reply = new String();
+		targetUserName = targetName;
 		try{
 			toServer.println("selectTarget");
 			toServer.println(targetName);
@@ -100,6 +103,7 @@ public class Client{
 
 		if (reply.equals("success")){
 			System.out.println("target user exist");
+			inChatRoom = false;
 			return true;
 		}
 		else{
@@ -130,6 +134,7 @@ public class Client{
 
 	public boolean enterChatRoom(String chatRoomName){
 		String reply = new String();
+		this.chatRoomName = chatRoomName;
 		try{
 			toServer.println("enterChatRoom");
 			toServer.println(chatRoomName);
@@ -140,6 +145,7 @@ public class Client{
 		}
 		if (reply.equals("success")){
 			System.out.println("entered the chat room " + chatRoomName);
+			inChatRoom = true;
 			return true;
 		}
 		else{
@@ -250,6 +256,40 @@ public class Client{
 		toServer.println("logout");
 	}
 
+	private String getHisFileName(){
+		return (inChatRoom) ? "r" + chatRoomName + ".his" : "u" + targetUserName + ".his";
+	}
+
+	public void store(String his){
+		try{
+			FileWriter fr = new FileWriter(getHisFileName(), false);
+			PrintWriter pw = new PrintWriter(fr);
+			pw.print(his);
+			pw.flush();
+			fr.close();
+		}
+		catch (Exception e){
+			System.out.println("store error");
+			return;
+		}
+	}
+
+	public String restore(){
+		try{
+			FileReader fr = new FileReader(getHisFileName());
+			BufferedReader br = new BufferedReader(fr);
+			String his = "";
+			while (br.ready())
+				his += (br.readLine() + "\n");
+			return his;
+		}
+		catch(IOException e){
+			System.out.println("restore error");
+			System.exit(0);
+			return new String();
+		}
+	}
+
 	public void run(){
 		createSocket();
 		String command, password;
@@ -302,14 +342,20 @@ public class Client{
 					break;
 				}
 			}
+
 	//		selectTarget("Nicky");
-			
+	/*		
 			if (name.equals("Nicky"))
 				sendFile("old.jpg");
 			else
 				if (!receiveFile())
 					System.out.println("no new file!");
-	
+	*/
+
+		//	store("line1" + "\n" + "line2" + "\n" + "line3" + "\n");
+		//	System.out.print(restore());
+
+
 			String message;
 			while (true){
 				if (fromUser.ready()){
