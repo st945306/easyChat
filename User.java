@@ -75,7 +75,7 @@ public class User{
 	}
 
 	public String getMessage(boolean inChatRoom, int fromID){
-		if (inChatRoom)
+		if (!inChatRoom)
 			if (hasNewMessage[fromID]){
 				hasNewMessage[fromID] = false;
 				return mailbox[fromID];
