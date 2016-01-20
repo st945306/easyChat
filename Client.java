@@ -346,13 +346,13 @@ public class Client{
 			}
 */
 	//		selectTarget("Nicky");
-	/*		
+			
 			if (name.equals("Nicky"))
 				sendFile("old.jpg");
 			else
 				if (!receiveFile())
 					System.out.println("no new file!");
-	*/
+	
 
 		//	store("line1" + "\n" + "line2" + "\n" + "line3" + "\n");
 		//	System.out.print(restore());
