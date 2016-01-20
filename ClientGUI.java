@@ -20,6 +20,7 @@ public class ClientGUI {
 	public static Boolean isListening = false;
 	public static Boolean isCheckingOnline = false;
 	public static Boolean isSending = false;
+	public static Boolean isSendingFile = false;
 	public static Boolean isGettingChatroomUserList = false;
 	Boolean isLogin = false;
 	JFrame startFrame, registrationFrame, selectTargetFrame, 
@@ -310,6 +311,7 @@ public class ClientGUI {
 		msgToSend = new JTextField();
 		msgToDisplay = new JTextArea(15, 40);
 		JButton btnSendMsg = new JButton("Send");
+		JButton btnSendFile = new JButton("Send File");
 		JButton btnReSelectUser = new JButton("Go Back");
 		JScrollPane scrollPanel = new JScrollPane(msgToDisplay, 
 			ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
@@ -326,10 +328,12 @@ public class ClientGUI {
 		msgToDisplay.setLineWrap(true);
 		msgToDisplay.setWrapStyleWord(true);
 		btnSendMsg.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnSendFile.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnReSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		sendAndListenFrame.addWindowListener(new closeHandler());
 		btnSendMsg.addActionListener(new sendMsgListener());
+		btnSendFile.addActionListener(new sendFileListener());
 		msgToSend.addActionListener(new sendMsgListener());
 		btnReSelectUser.addActionListener(new reSelectUserListener());
 
@@ -348,6 +352,8 @@ public class ClientGUI {
 					.addGap(10)
 					.addComponent(btnSendMsg)
 					.addGap(5)
+					.addComponent(btnSendFile)
+					.addGap(5)
 					.addComponent(btnReSelectUser)
 				)
 			)
@@ -364,6 +370,8 @@ public class ClientGUI {
 				.addComponent(msgToSend, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 				.addGap(10)
 				.addComponent(btnSendMsg)
+				.addGap(5)
+				.addComponent(btnSendFile)
 				.addGap(5)
 				.addComponent(btnReSelectUser)
 			)
@@ -574,6 +582,17 @@ public class ClientGUI {
 			isSending = false;
 			msgToSend.requestFocus();
 			msgToSend.setText("");
+		}
+	}
+
+	class sendFileListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			isSendingFile = true;
+			FileDialog fd = new FileDialog(sendAndListenFrame, "FileDialog", FileDialog.LOAD);
+			fd.setVisible(true);
+			if(fd != null)
+				client.sendFile(fd.getFile());
+			isSendingFile = false;
 		}
 	}
 

@@ -19,7 +19,12 @@ public class ClientListen extends Thread {
 	public void run() {
 		System.out.println("Client listen starts");
 		while(clientGUI.isListening) {
-			if(clientGUI.isSending || clientGUI.isCheckingOnline || clientGUI.isGettingChatroomUserList) continue;
+			if(clientGUI.isSending || clientGUI.isSendingFile ||
+				clientGUI.isCheckingOnline || clientGUI.isGettingChatroomUserList) continue;
+
+			//get file
+			if(client.receiveFile())
+				msgToDisplay.append("[System Message] You have received a file!\n");
 
 			//get messages
 			msg = client.receive();
