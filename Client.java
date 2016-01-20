@@ -364,6 +364,22 @@ public class Client{
 				if (fromUser.ready()){
 					message = fromUser.readLine();
 					switch (message){
+						case "checkOnline":
+							System.out.print("target name: ");
+							tName = fromUser.readLine();
+							switch (checkOnline(tName)){
+								case 1:
+									System.out.println("user is online");
+									break;
+								case 2:
+									System.out.println("user is offline");
+									break;
+								case 3:
+									System.out.println("user does not exist");
+									break;
+							}
+							break;
+
 						case "selectTarget":
 							System.out.print("target name: ");
 							tName = fromUser.readLine();
