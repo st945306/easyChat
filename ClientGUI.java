@@ -451,8 +451,10 @@ public class ClientGUI {
 
 	class closeHandler extends WindowAdapter {
 		public void windowClosing(WindowEvent event) {
-			if(isListening)
+			if(isListening) {
+				client.store(msgToDisplay.getText());
 				isListening = false;
+			}
 			if(isLogin) {
 				client.logout();
 				System.out.println("client logout");
@@ -501,6 +503,7 @@ public class ClientGUI {
 		public void actionPerformed(ActionEvent event) {
 			if(client.selectTarget(selectUserTextField.getText())) {
 				targetUser = selectUserTextField.getText();
+				msgToDisplay.setText(client.restore());
 				isListening = true;
 				startCheckOnline();
 				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
@@ -522,11 +525,12 @@ public class ClientGUI {
 			client.createChatRoom(createChatroomTextField.getText());
 			client.enterChatRoom(createChatroomTextField.getText());
 
+			msgToDisplay_chatroom.setText(client.restore());
 			isListening = true;
-			clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
+			clientlisten = new ClientListen(client, clientGUI, msgToDisplay_chatroom, targetUser);
 			clientlisten.start();
 			chatroomName = createChatroomTextField.getText();
-			//chatroomUserList.setText(refreshChatroomInfo());
+			chatroomUserList.setText(refreshChatroomInfo());
 			createChatroomTextField.setText("");
 			msgToSend_chatroom.requestFocus();
 			chatroomFrame.setVisible(true);
@@ -576,6 +580,7 @@ public class ClientGUI {
 	class reSelectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			isListening = false;
+			client.store(msgToDisplay.getText());
 			selectUserTextField.requestFocus();
 			selectTargetFrame.setVisible(true);
 			sendAndListenFrame.setVisible(false);
@@ -590,7 +595,7 @@ public class ClientGUI {
 			isSending = true;
 			client.send(msg);
 			isSending = false;
-			//chatroomUserList.setText(refreshChatroomInfo());
+			chatroomUserList.setText(refreshChatroomInfo());
 			msgToSend_chatroom.requestFocus();
 			msgToSend_chatroom.setText("");
 		}
@@ -601,6 +606,7 @@ public class ClientGUI {
 			int dialogResult = JOptionPane.showConfirmDialog (null, "All messages will be cleared.\nAre you sure to go back?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if(dialogResult == JOptionPane.YES_OPTION) {
 				isListening = false;
+				client.store(msgToDisplay.getText());
 				msgToDisplay_chatroom.setText("");
 				createChatroomTextField.requestFocus();
 				createChatroomFrame.setVisible(true);
