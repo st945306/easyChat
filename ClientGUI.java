@@ -28,10 +28,10 @@ public class ClientGUI {
 	createChatroomTextField, msgToSend, msgToSend_chatroom;
 	JPasswordField passwordField, r_passwordField;
 	JLabel isTargetUserOnline;
-	//JLabel chatroomOnlineUserNum;
 	JTextArea msgToDisplay, msgToDisplay_chatroom;
 	String targetUser;
-	//String[] chatroomUsers;
+	JLabel chatroomUserList;
+	String chatroomName;
 
 	public static void main(String[] args) {
 		clientGUI = new ClientGUI();
@@ -308,7 +308,7 @@ public class ClientGUI {
 		//sendAndListenFrame
 		isTargetUserOnline = new JLabel();
 		msgToSend = new JTextField();
-		msgToDisplay = new JTextArea(30, 40);
+		msgToDisplay = new JTextArea(15, 40);
 		JButton btnSendMsg = new JButton("Send");
 		JButton btnReSelectUser = new JButton("Go Back");
 		JScrollPane scrollPanel = new JScrollPane(msgToDisplay, 
@@ -371,21 +371,20 @@ public class ClientGUI {
 		);
 
 		sendAndListenFrame.pack();
-        sendAndListenFrame.setResizable(false);
+        sendAndListenFrame.setResizable(true);
 		sendAndListenFrame.setLocationRelativeTo(null);
 		sendAndListenFrame.setVisible(false);
 
 		//chatroomFrame
-		//chatroomOnlineUserNum = new JLabel();
 		msgToSend_chatroom = new JTextField();
-		msgToDisplay_chatroom = new JTextArea(30, 40);
+		msgToDisplay_chatroom = new JTextArea(15, 40);
 		JButton btnSendMsg_chatroom = new JButton("Send");
 		JButton btnReSelectUser_chatroom = new JButton("Go Back");
 		JScrollPane scrollPanel_chatroom = new JScrollPane(msgToDisplay_chatroom, 
 			ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		chatroomUserList = new JLabel();
 
-		//chatroomOnlineUserNum.setFont(new Font("Arial", Font.PLAIN, 16));
 		msgToSend_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		Border textAreaBorder_chatroom = BorderFactory.createLineBorder(Color.GRAY);
 		msgToDisplay_chatroom.setBorder(BorderFactory.createCompoundBorder(textAreaBorder_chatroom, 
@@ -396,6 +395,7 @@ public class ClientGUI {
 		msgToDisplay_chatroom.setWrapStyleWord(true);
 		btnSendMsg_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnReSelectUser_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		chatroomUserList.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		chatroomFrame.addWindowListener(new closeHandler());
 		btnSendMsg_chatroom.addActionListener(new sendMsg_chatroom_Listener());
@@ -414,8 +414,8 @@ public class ClientGUI {
 			)
 			.addGap(10)
 			.addGroup(chatroomLayout.createParallelGroup()
-				//.addComponent(chatroomOnlineUserNum)
-				//online user list
+				.addComponent(chatroomUserList)
+				.addGap(10)
 				.addGroup(chatroomLayout.createSequentialGroup()
 					.addComponent(btnSendMsg_chatroom)
 					.addGap(5)
@@ -427,14 +427,11 @@ public class ClientGUI {
 
 		chatroomLayout.setVerticalGroup(chatroomLayout.createSequentialGroup()
 			.addGap(20)
-			.addComponent(scrollPanel_chatroom)
-			/*
 			.addGroup(chatroomLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 				.addComponent(scrollPanel_chatroom)
 				.addGap(10)
-				.addComponent(chatroomOnlineUserNum)
+				.addComponent(chatroomUserList)
 			)
-			*/
 			.addGap(10)
 			.addGroup(chatroomLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 				.addComponent(msgToSend_chatroom, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
@@ -447,7 +444,7 @@ public class ClientGUI {
 		);
 
 		chatroomFrame.pack();
-        chatroomFrame.setResizable(false);
+        chatroomFrame.setResizable(true);
 		chatroomFrame.setLocationRelativeTo(null);
 		chatroomFrame.setVisible(false);
 	}
@@ -528,33 +525,26 @@ public class ClientGUI {
 			isListening = true;
 			clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
 			clientlisten.start();
-			chatroomFrame.setTitle("Chatroom: " + createChatroomTextField.getText());
+			chatroomName = createChatroomTextField.getText();
+			//chatroomUserList.setText(refreshChatroomInfo());
 			createChatroomTextField.setText("");
 			msgToSend_chatroom.requestFocus();
 			chatroomFrame.setVisible(true);
 			createChatroomFrame.setVisible(false);
-			/*
-			getChatroomUserList();
-			updateChatroomUserList();
-			*/
 		}	
 	}
 
-	/*
-	private void getChatroomUserList() {
+	private String refreshChatroomInfo() {
 		isGettingChatroomUserList = true;
-		chatroomUsers = client.getChatRoomMember();
-		isGettingChatroomUserList = false;
-	}
-
-	private void updateChatroomUserList() {
-		int userNum = chatroomUsers.length;
-		if(userNum <= 1)
-			chatroomOnlineUserNum.setText(userNum + " user online");
+		String[] member = client.getChatRoomMember();
+		int n = member.length;
+		if(n == 1)
+			chatroomFrame.setTitle("chatroom " + chatroomName + ", " + n + " user online");
 		else
-			chatroomOnlineUserNum.setText(userNum + " users online");
+			chatroomFrame.setTitle("chatroom " + chatroomName + ", " + n + " users online");
+		isGettingChatroomUserList = false;
+		return ("<html>Online User:<br>" + String.join("<br>", member) + "</html>");
 	}
-	*/
 
 	class gotoCreateChatroomListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
@@ -580,7 +570,6 @@ public class ClientGUI {
 			isSending = false;
 			msgToSend.requestFocus();
 			msgToSend.setText("");
-			startCheckOnline();
 		}
 	}
 
@@ -601,12 +590,9 @@ public class ClientGUI {
 			isSending = true;
 			client.send(msg);
 			isSending = false;
+			//chatroomUserList.setText(refreshChatroomInfo());
 			msgToSend_chatroom.requestFocus();
 			msgToSend_chatroom.setText("");
-			/*
-			getChatroomUserList();
-			updateChatroomUserList();
-			*/
 		}
 	}
 

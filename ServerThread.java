@@ -99,13 +99,13 @@ public class ServerThread extends Thread{
 			for (i = 0; i < User.userNum; i++)
 				if (users[i].getName().equals(targetName)){
 					if (users[i].isOnline())
-						result = 1;
+						result = 1;//is online
 					else
-						result = 2;
+						result = 2;//is not online
 					break;
 				}
 			if (i == User.userNum)
-				result = 3;
+				result = 3;//user not exist
 			toClient.println(result);
 		}
 		catch(Exception e){

@@ -322,40 +322,8 @@ public class Client{
 			// create fileSocket
 			createFileSocket();
 
-			// check online
-//			System.out.println(checkOnline("Ryan"));
-//			System.out.println(checkOnline("Nicky"));
 
-/*
-			createChatRoom("Yo man");
-			enterChatRoom("Yo man");
-			
-			String[] members = getChatRoomMember();
-			for (int i = 0; i < members.length; i++)
-				System.out.println(members[i]);
-*/
-/*
-			while (true){
-				System.out.print("Who do you want to chat with? ");
-				String targetName = fromUser.readLine();
-				if (selectTarget(targetName)){
-					System.out.format("Start chatting with %s!%n", targetName);
-					break;
-				}
-			}
-*/
-	//		selectTarget("Nicky");
-	/*		
-			if (name.equals("Nicky"))
-				sendFile("old.jpg");
-			else
-				if (!receiveFile())
-	
-*/
-		//	store("line1" + "\n" + "line2" + "\n" + "line3" + "\n");
-		//	System.out.print(restore());
-
-
+			// powerful-testing tool
 			String message, fileName, tName, cName;
 			String[] members;
 			while (true){
