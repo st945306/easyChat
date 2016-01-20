@@ -193,16 +193,6 @@ public class ServerThread extends Thread{
 			if (!inChatRoom){
 				System.out.format("from %d to %d: %s%n", userID, targetUserID, message);
 				users[targetUserID].putMessage(false, userID, userName, message);
-				/*
-				if (hasNewMessage[userID][targetUserID]){
-					mailbox[userID][targetUserID] += "\n";
-					mailbox[userID][targetUserID] += message;
-				}
-				else {
-					mailbox[userID][targetUserID] = message;
-					hasNewMessage[userID][targetUserID] = true;
-				}
-				*/
 			}
 			else {
 				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
@@ -211,16 +201,6 @@ public class ServerThread extends Thread{
 						continue;
 					System.out.format("from %d to %d: %s%n", userID, memberIDs[i], message);
 					users[memberIDs[i]].putMessage(true, chatRoomID, userName, message);
-					/*
-					if (hasNewMessage[userID][memberIDs[i]]){
-						mailbox[userID][memberIDs[i]] += "\n";
-						mailbox[userID][memberIDs[i]] += message;
-					}
-					else {
-						mailbox[userID][memberIDs[i]] = message;
-						hasNewMessage[userID][memberIDs[i]] = true;
-					}
-					*/
 				}
 			}
 		}
@@ -232,39 +212,10 @@ public class ServerThread extends Thread{
 	private void receive(){
 		try {
 			String message;
-			if (!inChatRoom){
+			if (!inChatRoom)
 				toClient.println(users[userID].getMessage(false, targetUserID));
-				/*
-				if (hasNewMessage[targetUserID][userID]){
-					message = mailbox[targetUserID][userID];
-					hasNewMessage[targetUserID][userID] = false;
-					toClient.println(message);
-				}
-				else
-					toClient.println("");
-				*/
-			}
-			else {
-				/*
-				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
-				message = "";
-				String token = "";
-				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
-					token = users[userID].getMessage(memberIDs[i]);
-					if (token.length() != 0){
-						message += token;
-						message += "\n";
-					}
-				}
-					
-					/*
-					if (hasNewMessage[memberIDs[i]][userID]){
-						message += mailbox[memberIDs[i]][userID];
-						hasNewMessage[memberIDs[i]][userID] = false;
-					}
-					*/
+			else
 				toClient.println(users[userID].getMessage(true, chatRoomID));
-			}
 		}
 		catch(Exception e){
 			System.out.println("receive error");
@@ -284,9 +235,21 @@ public class ServerThread extends Thread{
 				i += byteRead;
 				System.out.format("%.1f%% complete%n", i * 1.0 / fileSize * 100);
 			}
-
-			users[targetUserID].putFile(fileName, fileSize, buffer);
-			System.out.format("file %s: %d bytes received%n", fileName, fileSize);
+			if (!inChatRoom){
+				users[targetUserID].putFile(fileName, fileSize, buffer);
+				System.out.format("file %s: %d bytes received by %s%n", fileName, 
+									fileSize, users[targetUserID].getName());
+			}
+			else {
+				int[] memberIDs = chatRooms[chatRoomID].memberIDs;
+				for (int i = 0; i < chatRooms[chatRoomID].memberNum; i++){
+					if (userID == memberIDs[i])
+						continue;
+					users[memberIDs[i]].putFile(fileName, fileSize, buffer);
+					System.out.format("file %s: %d bytes received by %s%n", fileName,
+									fileSize, users[memberIDs[i]].getName());
+				}
+			}
 		}
 		catch (Exception e){
 			System.out.println("put file in box error");

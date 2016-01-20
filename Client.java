@@ -328,14 +328,14 @@ public class Client{
 //			System.out.println(checkOnline("Nicky"));
 
 
-//			createChatRoom("Yo man");
-//			enterChatRoom("Yo man");
-/*			
+			createChatRoom("Yo man");
+			enterChatRoom("Yo man");
+			
 			String[] members = getChatRoomMember();
 			for (int i = 0; i < members.length; i++)
 				System.out.println(members[i]);
-*/
 
+/*
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -344,7 +344,7 @@ public class Client{
 					break;
 				}
 			}
-
+*/
 	//		selectTarget("Nicky");
 	/*		
 			if (name.equals("Nicky"))
