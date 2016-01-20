@@ -31,6 +31,7 @@ public class ClientGUI {
 	JTextArea msgToDisplay, msgToDisplay_chatroom;
 	String targetUser;
 	JLabel chatroomUserList;
+	String chatroomName;
 
 	public static void main(String[] args) {
 		clientGUI = new ClientGUI();
@@ -370,7 +371,7 @@ public class ClientGUI {
 		);
 
 		sendAndListenFrame.pack();
-        sendAndListenFrame.setResizable(false);
+        sendAndListenFrame.setResizable(true);
 		sendAndListenFrame.setLocationRelativeTo(null);
 		sendAndListenFrame.setVisible(false);
 
@@ -394,6 +395,7 @@ public class ClientGUI {
 		msgToDisplay_chatroom.setWrapStyleWord(true);
 		btnSendMsg_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnReSelectUser_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		chatroomUserList.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		chatroomFrame.addWindowListener(new closeHandler());
 		btnSendMsg_chatroom.addActionListener(new sendMsg_chatroom_Listener());
@@ -442,7 +444,7 @@ public class ClientGUI {
 		);
 
 		chatroomFrame.pack();
-        chatroomFrame.setResizable(false);
+        chatroomFrame.setResizable(true);
 		chatroomFrame.setLocationRelativeTo(null);
 		chatroomFrame.setVisible(false);
 	}
@@ -523,7 +525,8 @@ public class ClientGUI {
 			isListening = true;
 			clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
 			clientlisten.start();
-			chatroomUserList.setText(refreshChatroomInfo());
+			chatroomName = createChatroomTextField.getText();
+			//chatroomUserList.setText(refreshChatroomInfo());
 			createChatroomTextField.setText("");
 			msgToSend_chatroom.requestFocus();
 			chatroomFrame.setVisible(true);
@@ -536,11 +539,11 @@ public class ClientGUI {
 		String[] member = client.getChatRoomMember();
 		int n = member.length;
 		if(n == 1)
-			chatroomFrame.setTitle("chatroom " + createChatroomTextField.getText() + ", " + n + " user online");
+			chatroomFrame.setTitle("chatroom " + chatroomName + ", " + n + " user online");
 		else
-			chatroomFrame.setTitle("chatroom " + createChatroomTextField.getText() + ", " + n + " users online");
+			chatroomFrame.setTitle("chatroom " + chatroomName + ", " + n + " users online");
 		isGettingChatroomUserList = false;
-		return String.join(",", member);
+		return ("<html>Online User:<br>" + String.join("<br>", member) + "</html>");
 	}
 
 	class gotoCreateChatroomListener extends MouseAdapter {
@@ -587,7 +590,7 @@ public class ClientGUI {
 			isSending = true;
 			client.send(msg);
 			isSending = false;
-			chatroomUserList.setText(refreshChatroomInfo());
+			//chatroomUserList.setText(refreshChatroomInfo());
 			msgToSend_chatroom.requestFocus();
 			msgToSend_chatroom.setText("");
 		}
