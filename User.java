@@ -54,7 +54,7 @@ public class User{
 
 	public void putMessage(boolean inChatRoom, int fromID, String userName, String message){
 		message = userName + ": " + message;
-		if (!inChatRoom)
+		if (!inChatRoom) {
 			if (hasNewMessage[fromID]){
 				mailbox[fromID] += "\n";
 				mailbox[fromID] += message;
@@ -63,7 +63,8 @@ public class User{
 				mailbox[fromID] = message;
 				hasNewMessage[fromID] = true;
 			}
-		else
+		}
+		else {
 			if (chatRoomHasNewMessage[fromID]){
 				chatRoomMailbox[fromID] += "\n";
 				chatRoomMailbox[fromID] += message;
@@ -72,14 +73,16 @@ public class User{
 				chatRoomMailbox[fromID] = message;
 				chatRoomHasNewMessage[fromID] = true;
 			}
+		}
 	}
 
 	public String getMessage(boolean inChatRoom, int fromID){
-		if (!inChatRoom)
+		if (!inChatRoom){
 			if (hasNewMessage[fromID]){
 				hasNewMessage[fromID] = false;
 				return mailbox[fromID];
 			}
+		}
 		else {
 			if (chatRoomHasNewMessage[fromID]){
 				chatRoomHasNewMessage[fromID] = false;

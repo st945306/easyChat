@@ -327,13 +327,14 @@ public class Client{
 			System.out.println("IS RYAN ONLINE? " + checkOnline("Ryan"));
 			System.out.println("IS NICKY ONLINE? " + checkOnline("Nicky"));
 
-
+/*
 			createChatRoom("Yo man");
 			enterChatRoom("Yo man");
 			
 			String[] members = getChatRoomMember();
 			for (int i = 0; i < members.length; i++)
 				System.out.println(members[i]);
+*/
 
 /*
 			while (true){
@@ -343,38 +344,68 @@ public class Client{
 					System.out.format("Start chatting with %s!%n", targetName);
 					break;
 				}
-			}*/
-
+			}
+*/
 	//		selectTarget("Nicky");
 	/*		
 			if (name.equals("Nicky"))
 				sendFile("old.jpg");
 			else
 				if (!receiveFile())
-					System.out.println("no new file!");
-	*/
-
+	
+*/
 		//	store("line1" + "\n" + "line2" + "\n" + "line3" + "\n");
 		//	System.out.print(restore());
 
 
-			String message;
+			String message, fileName, tName, cName;
+			String[] members;
 			while (true){
 				if (fromUser.ready()){
 					message = fromUser.readLine();
-					if (message.equals("logout")){
-						logout();
-						break;
+					switch (message){
+						case "selectTarget":
+							System.out.print("target name: ");
+							tName = fromUser.readLine();
+							selectTarget(tName);
+							break;
+
+						case "createChatRoom":
+							System.out.print("chat room name: ");
+							cName = fromUser.readLine();
+							createChatRoom(cName);
+							break;
+
+						case "enterChatRoom":
+							System.out.print("chat room name: ");
+							cName = fromUser.readLine();
+							enterChatRoom(cName);
+							break;
+
+						case "sendFile":
+							System.out.print("file name: ");
+							fileName = fromUser.readLine();
+							sendFile(fileName);
+							break;
+						
+						case "receiveFile":
+							if (!receiveFile())
+								System.out.println("no new file!");
+							break;
+
+						case "get":
+							members = getChatRoomMember();
+							for (int i = 0; i < members.length; i++)
+								System.out.println(members[i]);
+							break;
+
+						case "logout":
+							logout();
+							System.exit(0);
+
+						default:
+							send(message);
 					}
-					/*
-					if (message.equals("get")){
-						members = getChatRoomMember();
-						for (int i = 0; i < members.length; i++)
-							System.out.println(members[i]);
-						continue;
-					}
-					*/
-					send(message);
 				}
 				message = receive();
 				if (message.length() != 0)
