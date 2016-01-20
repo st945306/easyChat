@@ -284,9 +284,8 @@ public class Client{
 			return his;
 		}
 		catch(IOException e){
-			System.out.println("restore error");
-			System.exit(0);
-			return new String();
+			//System.out.println("restore error");
+			return "";
 		}
 	}
 
