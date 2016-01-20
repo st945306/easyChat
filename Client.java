@@ -324,18 +324,18 @@ public class Client{
 			createFileSocket();
 
 			// check online
-//			System.out.println(checkOnline("Ryan"));
-//			System.out.println(checkOnline("Nicky"));
+			System.out.println("IS RYAN ONLINE? " + checkOnline("Ryan"));
+			System.out.println("IS NICKY ONLINE? " + checkOnline("Nicky"));
 
 
-//			createChatRoom("Yo man");
-//			enterChatRoom("Yo man");
-/*			
+			createChatRoom("Yo man");
+			enterChatRoom("Yo man");
+			
 			String[] members = getChatRoomMember();
 			for (int i = 0; i < members.length; i++)
 				System.out.println(members[i]);
-*/
 
+/*
 			while (true){
 				System.out.print("Who do you want to chat with? ");
 				String targetName = fromUser.readLine();
@@ -343,7 +343,7 @@ public class Client{
 					System.out.format("Start chatting with %s!%n", targetName);
 					break;
 				}
-			}
+			}*/
 
 	//		selectTarget("Nicky");
 	/*		
