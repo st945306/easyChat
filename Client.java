@@ -193,13 +193,15 @@ public class Client{
 		return message;
 	}
 
-	public void sendFile(String fileName){
+	public void sendFile(String filePath){
 		try{
-			System.out.println("client sending file " + fileName + "...");
 			toServer.println("sendFile");
 
-			File file = new File(fileName);
+			File file = new File(filePath);
 			int fileSize = (int)file.length();
+			String fileName = file.getName();
+			System.out.println("client sending file " + fileName + "...");
+
 			toServer.println(fileName);
 			toServer.println(fileSize);
 
@@ -365,7 +367,7 @@ public class Client{
 							break;
 
 						case "sendFile":
-							System.out.print("file name: ");
+							System.out.print("file name(abs path if in other directory): ");
 							fileName = fromUser.readLine();
 							sendFile(fileName);
 							break;
