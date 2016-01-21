@@ -240,7 +240,7 @@ public class ClientGUI {
 		JLabel selectUser = new JLabel("Please enter the target user");
 		selectUserTextField = new JTextField(16);
 		JButton btnSelectUser = new JButton("Chat");
-		JLabel gotoCreateChatroom = new JLabel("or Create a chatroom!");
+		JLabel gotoCreateChatroom = new JLabel("or Join a chatroom!");
 
 		//4.1: Setting style (selectUserFrame)
 		selectUser.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -303,7 +303,7 @@ public class ClientGUI {
 		//5.0: Declare variables (createChatroomFrame)
 		JLabel createChatroom = new JLabel("Please enter the chatroom name");
 		createChatroomTextField = new JTextField(16);
-		JButton btnCreateChatroom = new JButton("Create");
+		JButton btnCreateChatroom = new JButton("Join");
 		JLabel gotoSelectUser = new JLabel("or Select a user to chat with!");
 
 		//5.1: Setting style (createChatroomFrame)
@@ -467,7 +467,7 @@ public class ClientGUI {
 		msgToDisplay_chatroom = new JTextArea(15, 40);
 			DefaultCaret caret_chatroom = (DefaultCaret)msgToDisplay.getCaret();
 			caret_chatroom.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		chatroomUserList = new JLabel("<html><b>Online User</b></html>");
+		chatroomUserList = new JLabel("<html><b>Chatroom Member</b></html>");
 		msgToSend_chatroom = new JTextField();
 		JButton btnSendMsg_chatroom = new JButton("Send");
 		JButton btnSendFile_chatroom = new JButton("Send File");
@@ -770,7 +770,7 @@ public class ClientGUI {
 		public void actionPerformed(ActionEvent event) {
 			isListenLocked = true;
 			String[] member = client.getChatRoomMember();
-			chatroomUserList.setText("<html><b>Online User</b><br>" + String.join("<br>", member) + "</html>");
+			chatroomUserList.setText("<html><b>Chatroom Member</b><br>" + String.join("<br>", member) + "</html>");
 			isListenLocked = false;
 		}
 	}
