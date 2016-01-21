@@ -159,6 +159,7 @@ public class ClientGUI {
 		r_usernameTextField = new JTextField(16);
 		r_passwordField = new JPasswordField(16);
 		JButton btnRegistration = new JButton("Sign Up");
+		JButton btnGoBack = new JButton("Go Back");
 
 		//3.1: Setting style (registrationFrame)
 		r_username.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -166,12 +167,14 @@ public class ClientGUI {
 		r_usernameTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		r_passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnRegistration.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnGoBack.setFont(new Font("Arial", Font.PLAIN, 16));
 
 		//3.2: Adding handlers/listeners (registrationFrame)
 		registrationFrame.addWindowListener(new closeHandler());
 		r_usernameTextField.addActionListener(new registrationListener());
 		r_passwordField.addActionListener(new registrationListener());
 		btnRegistration.addActionListener(new registrationListener());
+		btnGoBack.addActionListener(new gotoStartListener());
 
 		//3.3: Layout setting (registrationFrame)
 		GroupLayout registrationLayout = new GroupLayout(registrationFrame.getContentPane());
@@ -192,7 +195,11 @@ public class ClientGUI {
 						.addGap(14)
 						.addComponent(r_passwordField)
 						.addGap(14)
-						.addComponent(btnRegistration)
+						.addGroup(registrationLayout.createSequentialGroup()
+							.addComponent(btnRegistration)
+							.addGap(5)
+							.addComponent(btnGoBack)
+						)
 					)
 				)
 			)
@@ -213,7 +220,11 @@ public class ClientGUI {
 				.addComponent(r_passwordField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 			)
 			.addGap(14)
-			.addComponent(btnRegistration)
+			.addGroup(registrationLayout.createParallelGroup()
+				.addComponent(btnRegistration)
+				.addGap(5)
+				.addComponent(btnGoBack)
+			)
 			.addGap(20)
 		);
 
@@ -583,9 +594,10 @@ public class ClientGUI {
 
 	class gotoRegistrationListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
-				r_usernameTextField.requestFocus();
-				registrationFrame.setVisible(true);
-				startFrame.setVisible(false);
+			r_usernameTextField.setText("");
+			r_usernameTextField.requestFocus();
+			registrationFrame.setVisible(true);
+			startFrame.setVisible(false);
 		}
 	}
 
@@ -593,6 +605,8 @@ public class ClientGUI {
 		public void actionPerformed(ActionEvent event) {
 			if(client.register(r_usernameTextField.getText(), String.valueOf(r_passwordField.getPassword()))) {
 				JOptionPane.showMessageDialog(null, "Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
+				isLogin = true;
+				client.createFileSocket();
 				selectUserTextField.setText("");
 				selectUserTextField.requestFocus();
 				selectUserFrame.setVisible(true);
@@ -601,6 +615,15 @@ public class ClientGUI {
 			else {
 				JOptionPane.showMessageDialog(null, "The username has been used!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
+		}
+	}
+
+	class gotoStartListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			usernameTextField.setText("");
+			usernameTextField.requestFocus();
+			startFrame.setVisible(true);
+			registrationFrame.setVisible(false);
 		}
 	}
 
@@ -682,7 +705,7 @@ public class ClientGUI {
 			fd.setVisible(true);
 			if(fd != null) {
 				isListenLocked = true;
-				client.sendFile(fd.getFile());
+				client.sendFile(fd.getDirectory() + fd.getFile());
 				isListenLocked = false;
 				msgToDisplay.append("[System Message] You have sent a file!\n");
 			}
@@ -736,7 +759,7 @@ public class ClientGUI {
 			fd.setVisible(true);
 			if(fd != null) {
 				isListenLocked = true;
-				client.sendFile(fd.getFile());
+				client.sendFile(fd.getDirectory() + fd.getFile());
 				isListenLocked = false;
 				msgToDisplay_chatroom.append("[System Message] You have sent a file!\n");
 			}
