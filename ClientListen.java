@@ -3,34 +3,38 @@ import javax.swing.*;
 public class ClientListen extends Thread {
 	Client client;
 	ClientGUI clientGUI;
-	String targetUser;
-
-	JTextArea msgToDisplay;
+	JTextArea textarea;
 	String msg;
 
-	public ClientListen(Client cli, ClientGUI cliGUI, JTextArea msg, String user) {
-		client = cli;
-		clientGUI = cliGUI;
-		msgToDisplay = msg;
-		targetUser = user;
+	public ClientListen(Client client, ClientGUI clientGUI, JTextArea textarea) {
+		this.client = client;
+		this.clientGUI = clientGUI;
+		this.textarea = textarea;
 	}
 
 	@Override
 	public void run() {
 		System.out.println("Client listen starts");
 		while(clientGUI.isListening) {
-			if(clientGUI.isSending || clientGUI.isSendingFile ||
-				clientGUI.isCheckingOnline || clientGUI.isGettingChatroomUserList) continue;
+			try {
+				Thread.sleep(1000);
+			}
+			catch(Exception e) {
+				System.out.println("error: ClientListen sleep");
+				System.out.println(e);
+			}
+
+			if(clientGUI.isListenLocked)
+				continue;
 
 			//get file
 			if(client.receiveFile())
-				msgToDisplay.append("[System Message] You have received a file!\n");
+				textarea.append("[System Message] You have received a file!\n");
 
 			//get messages
 			msg = client.receive();
-			if(msg.length() == 0)
-				continue;
-			msgToDisplay.append(msg + "\n");
+			if(msg.length() == 0) continue;
+			textarea.append(msg + "\n");
 		}
 		System.out.println("Client listen terminates");
 	}

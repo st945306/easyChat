@@ -218,7 +218,8 @@ public class ServerThread extends Thread{
 				toClient.println(users[userID].getMessage(true, chatRoomID));
 		}
 		catch(Exception e){
-			System.out.println("receive error");
+			System.out.println("receive_error");
+			System.out.println(e);
 		}
 	}
 

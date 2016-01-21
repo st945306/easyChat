@@ -1,38 +1,54 @@
 /*
-	reference:
-	font size of a component: http://docs.oracle.com/javase/tutorial/uiswing/components/html.html
-
-	question:
-	padding of JButton
-
-	to-do list:
-	cannot connect to the server
+	future work
+	- cancel registration
+	- cancel send file
+	- the path of sending file
 */
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.Border;
+
+import java.awt.*;			//Color, Cursor, Font
+import java.awt.event.*;	//Listener
+import javax.swing.*;		//JFrame
+import javax.swing.border.Border;	//for JTextArea
+import javax.swing.text.*;		//Auto-scrolling
 
 public class ClientGUI {
-	static ClientGUI clientGUI;
-	Client client;
-	ClientListen clientlisten;
-	public static Boolean isListening = false;
-	public static Boolean isCheckingOnline = false;
-	public static Boolean isSending = false;
-	public static Boolean isSendingFile = false;
-	public static Boolean isGettingChatroomUserList = false;
-	Boolean isLogin = false;
-	JFrame startFrame, registrationFrame, selectTargetFrame, 
-	createChatroomFrame, sendAndListenFrame, chatroomFrame;
-	JTextField usernameTextField, r_usernameTextField, selectUserTextField, 
-	createChatroomTextField, msgToSend, msgToSend_chatroom;
-	JPasswordField passwordField, r_passwordField;
-	JLabel isTargetUserOnline;
-	JTextArea msgToDisplay, msgToDisplay_chatroom;
-	String targetUser;
+	private static ClientGUI clientGUI;
+	private Client client;
+	private ClientListen clientListen;
+	private String targetUser;	//the user who you chat with now
+
+	JFrame startFrame, registrationFrame, 
+		selectUserFrame, sendAndListenFrame, 
+		createChatroomFrame, chatroomFrame;
+
+	//startFrame
+	JTextField usernameTextField;
+	JPasswordField passwordField;
+
+	//registrationFrame
+	JTextField r_usernameTextField;
+	JPasswordField r_passwordField;
+
+	//selectUserFrame
+	JTextField selectUserTextField;
+
+	//sendAndListenFrame
+	JTextArea msgToDisplay;
+	JTextField msgToSend;
+	JLabel knockKnockResult;
+	
+	//createChatroomFrame
+	JTextField createChatroomTextField;
+
+	//chatroomFrame
+	JTextField msgToSend_chatroom;
 	JLabel chatroomUserList;
-	String chatroomName;
+	JTextArea msgToDisplay_chatroom;
+
+	public static Boolean isListening = false;
+	public static Boolean isListenLocked = false;
+	public static Boolean isLogin = false;
+
 
 	public static void main(String[] args) {
 		clientGUI = new ClientGUI();
@@ -40,16 +56,22 @@ public class ClientGUI {
 	}
 
 	public void go() {
+		//0: Connection
 		client = new Client();
 		client.createSocket();
+
+
+		//1: Frame initialization
 		startFrame = new JFrame("EasyChat");
 		registrationFrame = new JFrame("Registration");
-		selectTargetFrame = new JFrame("Select Target");
+		selectUserFrame = new JFrame("Select User");
 		createChatroomFrame = new JFrame("Create Chatroom");
-		sendAndListenFrame = new JFrame("");
-		chatroomFrame = new JFrame("");
+		sendAndListenFrame = new JFrame();
+		chatroomFrame = new JFrame();
 
-		//startFrame
+
+		//2: startFrame
+		//2.0: Declare variables (startFrame)
 		JLabel username = new JLabel("Username");
 		JLabel password = new JLabel("Password");
 		usernameTextField = new JTextField(16);
@@ -57,6 +79,7 @@ public class ClientGUI {
 		JButton btnLogIn = new JButton("Log In");
 		JLabel registration = new JLabel("Sign Up");
 
+		//2.1: Setting style (startFrame)
 		username.setFont(new Font("Arial", Font.PLAIN, 16));
 		password.setFont(new Font("Arial", Font.PLAIN, 16));
 		usernameTextField.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -66,17 +89,19 @@ public class ClientGUI {
 		registration.setFont(new Font("Arial", Font.PLAIN, 16));
 		registration.setForeground(Color.blue);
 
+		//2.2: Adding handlers/listeners (startFrame)
 		startFrame.addWindowListener(new closeHandler());
 		usernameTextField.addActionListener(new logInListener());
 		passwordField.addActionListener(new logInListener());
 		btnLogIn.addActionListener(new logInListener());
 		registration.addMouseListener(new gotoRegistrationListener());
 
-        GroupLayout loginLayout = new GroupLayout(startFrame.getContentPane());
-        startFrame.getContentPane().setLayout(loginLayout);
+		//2.3: Layout setting (startFrame)
+		GroupLayout loginLayout = new GroupLayout(startFrame.getContentPane());
+		startFrame.getContentPane().setLayout(loginLayout);
 
 		loginLayout.setHorizontalGroup(loginLayout.createSequentialGroup()
-			.addGap(20)
+			.addGap(50)
 			.addGroup(loginLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 				.addGroup(loginLayout.createSequentialGroup()
 					.addGroup(loginLayout.createParallelGroup()
@@ -119,32 +144,38 @@ public class ClientGUI {
 			.addGap(20)
 		);
 
-		startFrame.pack();
-        startFrame.setResizable(false);
-		startFrame.setLocationRelativeTo(null);
+		//2.4: Other setting of components and the frame (startFrame)
 		usernameTextField.requestFocus();
+		startFrame.pack();
+		startFrame.setLocationRelativeTo(null);
+		startFrame.setResizable(false);
 		startFrame.setVisible(true);
 
-		//registrationFrame
+
+		//3: registrationFrame
+		//3.0: Declare variables (registrationFrame)
 		JLabel r_username = new JLabel("Username");
 		JLabel r_password = new JLabel("Password");
 		r_usernameTextField = new JTextField(16);
 		r_passwordField = new JPasswordField(16);
 		JButton btnRegistration = new JButton("Sign Up");
 
+		//3.1: Setting style (registrationFrame)
 		r_username.setFont(new Font("Arial", Font.PLAIN, 16));
 		r_password.setFont(new Font("Arial", Font.PLAIN, 16));
 		r_usernameTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		r_passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnRegistration.setFont(new Font("Arial", Font.PLAIN, 16));
 
+		//3.2: Adding handlers/listeners (registrationFrame)
 		registrationFrame.addWindowListener(new closeHandler());
 		r_usernameTextField.addActionListener(new registrationListener());
 		r_passwordField.addActionListener(new registrationListener());
 		btnRegistration.addActionListener(new registrationListener());
 
-        GroupLayout registrationLayout = new GroupLayout(registrationFrame.getContentPane());
-        registrationFrame.getContentPane().setLayout(registrationLayout);
+		//3.3: Layout setting (registrationFrame)
+		GroupLayout registrationLayout = new GroupLayout(registrationFrame.getContentPane());
+		registrationFrame.getContentPane().setLayout(registrationLayout);
 
 		registrationLayout.setHorizontalGroup(registrationLayout.createSequentialGroup()
 			.addGap(20)
@@ -186,16 +217,21 @@ public class ClientGUI {
 			.addGap(20)
 		);
 
+		//3.4: Other setting of components and the frame (registrationFrame)
 		registrationFrame.pack();
-        registrationFrame.setResizable(false);
 		registrationFrame.setLocationRelativeTo(null);
+		registrationFrame.setResizable(false);
+		registrationFrame.setVisible(false);
 
-		//selectTargetFrame
+
+		//4: selectUserFrame
+		//4.0: Declare variables (selectUserFrame)
 		JLabel selectUser = new JLabel("Please enter the target user");
 		selectUserTextField = new JTextField(16);
-		JButton btnSelectUser = new JButton("Confirm");
+		JButton btnSelectUser = new JButton("Chat");
 		JLabel gotoCreateChatroom = new JLabel("or Create a chatroom!");
 
+		//4.1: Setting style (selectUserFrame)
 		selectUser.setFont(new Font("Arial", Font.PLAIN, 16));
 		selectUserTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -203,13 +239,15 @@ public class ClientGUI {
 		gotoCreateChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		gotoCreateChatroom.setForeground(Color.blue);
 
-		selectTargetFrame.addWindowListener(new closeHandler());
-		btnSelectUser.addActionListener(new selectUserListener());
+		//4.2: Adding handlers/listeners (selectUserFrame)
+		selectUserFrame.addWindowListener(new closeHandler());
 		selectUserTextField.addActionListener(new selectUserListener());
+		btnSelectUser.addActionListener(new selectUserListener());
 		gotoCreateChatroom.addMouseListener(new gotoCreateChatroomListener());
 
-		GroupLayout selectUserLayout = new GroupLayout(selectTargetFrame.getContentPane());
-        selectTargetFrame.getContentPane().setLayout(selectUserLayout);
+		//4.3: Layout setting (selectUserFrame)
+		GroupLayout selectUserLayout = new GroupLayout(selectUserFrame.getContentPane());
+		selectUserFrame.getContentPane().setLayout(selectUserLayout);
 
 		selectUserLayout.setHorizontalGroup(selectUserLayout.createSequentialGroup()
 			.addGap(20)
@@ -243,31 +281,37 @@ public class ClientGUI {
 			.addGap(20)
 		);
 
-		selectTargetFrame.pack();
-        selectTargetFrame.setResizable(false);
-		selectTargetFrame.setLocationRelativeTo(null);
-		selectTargetFrame.setVisible(false);
+		//4.4: Other setting of components and the frame (selectUserFrame)
+		selectUserFrame.pack();
+		selectUserFrame.setLocationRelativeTo(null);
+		selectUserFrame.setResizable(false);
+		selectUserFrame.setVisible(false);
 
-		//createChatroomFrame
+
+		//5: createChatroomFrame
+		//5.0: Declare variables (createChatroomFrame)
 		JLabel createChatroom = new JLabel("Please enter the chatroom name");
 		createChatroomTextField = new JTextField(16);
-		JButton btnCreateChatroom = new JButton("Confirm");
-		JLabel gotoSelectTarget = new JLabel("or Select a user to chat with!");
+		JButton btnCreateChatroom = new JButton("Create");
+		JLabel gotoSelectUser = new JLabel("or Select a user to chat with!");
 
+		//5.1: Setting style (createChatroomFrame)
 		createChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		createChatroomTextField.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnCreateChatroom.setFont(new Font("Arial", Font.PLAIN, 16));
-		gotoSelectTarget.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		gotoSelectTarget.setFont(new Font("Arial", Font.PLAIN, 16));
-		gotoSelectTarget.setForeground(Color.blue);
+		gotoSelectUser.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		gotoSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
+		gotoSelectUser.setForeground(Color.blue);
 
+		//5.2: Adding handlers/listeners (createChatroomFrame)
 		createChatroomFrame.addWindowListener(new closeHandler());
-		btnCreateChatroom.addActionListener(new createChatroomListener());
 		createChatroomTextField.addActionListener(new createChatroomListener());
-		gotoSelectTarget.addMouseListener(new gotoSelectTargetListener());
+		btnCreateChatroom.addActionListener(new createChatroomListener());
+		gotoSelectUser.addMouseListener(new gotoSelectUserListener());
 
+		//5.3: Layout setting (createChatroomFrame)
 		GroupLayout createChatroomLayout = new GroupLayout(createChatroomFrame.getContentPane());
-        createChatroomFrame.getContentPane().setLayout(createChatroomLayout);
+		createChatroomFrame.getContentPane().setLayout(createChatroomLayout);
 
 		createChatroomLayout.setHorizontalGroup(createChatroomLayout.createSequentialGroup()
 			.addGap(20)
@@ -282,7 +326,7 @@ public class ClientGUI {
 					.addComponent(btnCreateChatroom)
 				)
 				.addGap(15)
-				.addComponent(gotoSelectTarget)
+				.addComponent(gotoSelectUser)
 			)
 			.addGap(20)
 		);
@@ -297,64 +341,82 @@ public class ClientGUI {
 			.addGap(10)
 			.addComponent(btnCreateChatroom)
 			.addGap(15)
-			.addComponent(gotoSelectTarget)
+			.addComponent(gotoSelectUser)
 			.addGap(20)
 		);
 
+		//5.4: Other setting of components and the frame (createChatroomFrame)
 		createChatroomFrame.pack();
-        createChatroomFrame.setResizable(false);
 		createChatroomFrame.setLocationRelativeTo(null);
+		createChatroomFrame.setResizable(false);
 		createChatroomFrame.setVisible(false);
 
-		//sendAndListenFrame
-		isTargetUserOnline = new JLabel();
-		msgToSend = new JTextField();
+
+		//6: sendAndListenFrame
+		//6.0: Declare variables (sendAndListenFrame)
 		msgToDisplay = new JTextArea(15, 40);
+			DefaultCaret caret = (DefaultCaret)msgToDisplay.getCaret();
+			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		msgToSend = new JTextField();
 		JButton btnSendMsg = new JButton("Send");
 		JButton btnSendFile = new JButton("Send File");
+		JButton btnKnockKnock = new JButton("Knock knock");
 		JButton btnReSelectUser = new JButton("Go Back");
+		knockKnockResult = new JLabel();
 		JScrollPane scrollPanel = new JScrollPane(msgToDisplay, 
 			ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		isTargetUserOnline.setText("isTargetUserOnline Label");
-		isTargetUserOnline.setFont(new Font("Arial", Font.PLAIN, 16));
-		msgToSend.setFont(new Font("Arial", Font.PLAIN, 16));
+		//6.1: Setting style (sendAndListenFrame)
 		Border textAreaBorder = BorderFactory.createLineBorder(Color.GRAY);
 		msgToDisplay.setBorder(BorderFactory.createCompoundBorder(textAreaBorder, 
-            BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 		msgToDisplay.setEditable(false);
 		msgToDisplay.setFont(new Font("Arial", Font.PLAIN, 20));
 		msgToDisplay.setLineWrap(true);
 		msgToDisplay.setWrapStyleWord(true);
+		msgToSend.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnSendMsg.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnSendFile.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnKnockKnock.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnReSelectUser.setFont(new Font("Arial", Font.PLAIN, 16));
+		knockKnockResult.setFont(new Font("Arial", Font.PLAIN, 16));
 
+		//6.2: Adding handlers/listeners (sendAndListenFrame)
 		sendAndListenFrame.addWindowListener(new closeHandler());
+		msgToSend.addActionListener(new sendMsgListener());
 		btnSendMsg.addActionListener(new sendMsgListener());
 		btnSendFile.addActionListener(new sendFileListener());
-		msgToSend.addActionListener(new sendMsgListener());
+		btnKnockKnock.addActionListener(new knockKnockListener());
 		btnReSelectUser.addActionListener(new reSelectUserListener());
 
+		//6.3: Layout setting (sendAndListenFrame)
 		GroupLayout sendAndListenLayout = new GroupLayout(sendAndListenFrame.getContentPane());
-        sendAndListenFrame.getContentPane().setLayout(sendAndListenLayout);
+		sendAndListenFrame.getContentPane().setLayout(sendAndListenLayout);
 
 		sendAndListenLayout.setHorizontalGroup(sendAndListenLayout.createSequentialGroup()
 			.addGap(20)
 			.addGroup(sendAndListenLayout.createParallelGroup()
-				.addComponent(isTargetUserOnline)
-				.addGap(10)
 				.addComponent(scrollPanel)
 				.addGap(10)
 				.addGroup(sendAndListenLayout.createSequentialGroup()
-					.addComponent(msgToSend)
+					.addGroup(sendAndListenLayout.createParallelGroup()
+						.addComponent(msgToSend)
+						.addGap(10)
+						.addComponent(knockKnockResult)
+					)
 					.addGap(10)
-					.addComponent(btnSendMsg)
+					.addGroup(sendAndListenLayout.createParallelGroup()
+						.addComponent(btnSendMsg)
+						.addGap(10)
+						.addComponent(btnKnockKnock)
+					)
 					.addGap(5)
-					.addComponent(btnSendFile)
-					.addGap(5)
-					.addComponent(btnReSelectUser)
+					.addGroup(sendAndListenLayout.createParallelGroup()
+						.addComponent(btnSendFile)
+						.addGap(10)
+						.addComponent(btnReSelectUser)
+					)
 				)
 			)
 			.addGap(20)
@@ -362,8 +424,6 @@ public class ClientGUI {
 
 		sendAndListenLayout.setVerticalGroup(sendAndListenLayout.createSequentialGroup()
 			.addGap(20)
-			.addComponent(isTargetUserOnline)
-			.addGap(10)
 			.addComponent(scrollPanel)
 			.addGap(10)
 			.addGroup(sendAndListenLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -372,60 +432,84 @@ public class ClientGUI {
 				.addComponent(btnSendMsg)
 				.addGap(5)
 				.addComponent(btnSendFile)
+			)
+			.addGap(10)
+			.addGroup(sendAndListenLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(knockKnockResult)
+				.addGap(10)
+				.addComponent(btnKnockKnock)
 				.addGap(5)
 				.addComponent(btnReSelectUser)
 			)
 			.addGap(20)
 		);
 
+		//6.4: Other setting of components and the frame (startFrame)
 		sendAndListenFrame.pack();
-        sendAndListenFrame.setResizable(true);
 		sendAndListenFrame.setLocationRelativeTo(null);
+		sendAndListenFrame.setResizable(true);
 		sendAndListenFrame.setVisible(false);
 
-		//chatroomFrame
-		msgToSend_chatroom = new JTextField();
+
+		//7: chatroomFrame
+		//7.0: Declare variables (chatroomFrame)
 		msgToDisplay_chatroom = new JTextArea(15, 40);
+			DefaultCaret caret_chatroom = (DefaultCaret)msgToDisplay.getCaret();
+			caret_chatroom.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		chatroomUserList = new JLabel("<html><b>Online User</b></html>");
+		msgToSend_chatroom = new JTextField();
 		JButton btnSendMsg_chatroom = new JButton("Send");
+		JButton btnSendFile_chatroom = new JButton("Send File");
+		JButton btnKnockKnock_chatroom = new JButton("Knock knock");
 		JButton btnReSelectUser_chatroom = new JButton("Go Back");
 		JScrollPane scrollPanel_chatroom = new JScrollPane(msgToDisplay_chatroom, 
 			ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		chatroomUserList = new JLabel();
 
-		msgToSend_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		//7.1: Setting style (chatroomFrame)
 		Border textAreaBorder_chatroom = BorderFactory.createLineBorder(Color.GRAY);
+		chatroomUserList.setFont(new Font("Arial", Font.PLAIN, 16));
 		msgToDisplay_chatroom.setBorder(BorderFactory.createCompoundBorder(textAreaBorder_chatroom, 
-			BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 		msgToDisplay_chatroom.setEditable(false);
 		msgToDisplay_chatroom.setFont(new Font("Arial", Font.PLAIN, 20));
 		msgToDisplay_chatroom.setLineWrap(true);
 		msgToDisplay_chatroom.setWrapStyleWord(true);
+		msgToSend_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnSendMsg_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnSendFile_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
+		btnKnockKnock_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
 		btnReSelectUser_chatroom.setFont(new Font("Arial", Font.PLAIN, 16));
-		chatroomUserList.setFont(new Font("Arial", Font.PLAIN, 16));
 
+		//7.2: Adding handlers/listeners (chatroomFrame)
 		chatroomFrame.addWindowListener(new closeHandler());
-		btnSendMsg_chatroom.addActionListener(new sendMsg_chatroom_Listener());
 		msgToSend_chatroom.addActionListener(new sendMsg_chatroom_Listener());
+		btnSendMsg_chatroom.addActionListener(new sendMsg_chatroom_Listener());
+		btnSendFile_chatroom.addActionListener(new sendFile_chatroom_Listener());
+		btnKnockKnock_chatroom.addActionListener(new knockKnock_chatroom_Listener());
 		btnReSelectUser_chatroom.addActionListener(new reSelectUser_chatroom_Listener());
 
+		//7.3: Layout setting (chatroomFrame)
 		GroupLayout chatroomLayout = new GroupLayout(chatroomFrame.getContentPane());
-        chatroomFrame.getContentPane().setLayout(chatroomLayout);
+		chatroomFrame.getContentPane().setLayout(chatroomLayout);
 
 		chatroomLayout.setHorizontalGroup(chatroomLayout.createSequentialGroup()
 			.addGap(20)
 			.addGroup(chatroomLayout.createParallelGroup()
-				.addComponent(scrollPanel_chatroom)
-				.addGap(10)
-				.addComponent(msgToSend_chatroom)
-			)
-			.addGap(10)
-			.addGroup(chatroomLayout.createParallelGroup()
-				.addComponent(chatroomUserList)
+				.addGroup(chatroomLayout.createSequentialGroup()
+					.addComponent(scrollPanel_chatroom)
+					.addGap(10)
+					.addComponent(chatroomUserList)
+				)
 				.addGap(10)
 				.addGroup(chatroomLayout.createSequentialGroup()
+					.addComponent(msgToSend_chatroom)
+					.addGap(10)
 					.addComponent(btnSendMsg_chatroom)
+					.addGap(5)
+					.addComponent(btnSendFile_chatroom)
+					.addGap(5)
+					.addComponent(btnKnockKnock_chatroom)
 					.addGap(5)
 					.addComponent(btnReSelectUser_chatroom)
 				)
@@ -446,49 +530,38 @@ public class ClientGUI {
 				.addGap(10)
 				.addComponent(btnSendMsg_chatroom)
 				.addGap(5)
+				.addComponent(btnSendFile_chatroom)
+				.addGap(5)
+				.addComponent(btnKnockKnock_chatroom)
+				.addGap(5)
 				.addComponent(btnReSelectUser_chatroom)
 			)
 			.addGap(20)
 		);
 
+		//7.4: Other setting of components and the frame (chatroomFrame)
 		chatroomFrame.pack();
-        chatroomFrame.setResizable(true);
 		chatroomFrame.setLocationRelativeTo(null);
+		chatroomFrame.setResizable(true);
 		chatroomFrame.setVisible(false);
 	}
 
+
+	//Listener Part
 	class closeHandler extends WindowAdapter {
 		public void windowClosing(WindowEvent event) {
-			if(isListening) {
+			System.out.println("User closed the GUI window");
+			if(sendAndListenFrame.isVisible())
 				client.store(msgToDisplay.getText());
-				isListening = false;
-			}
+			if(chatroomFrame.isVisible())
+				client.store(msgToDisplay_chatroom.getText());
+			
+			isListening = false;
 			if(isLogin) {
 				client.logout();
-				System.out.println("client logout");
+				System.out.println("Client logout due to window closed");
 			}
 			System.exit(0);
-		}
-	}
-
-	class gotoRegistrationListener extends MouseAdapter {
-		public void mouseClicked(MouseEvent e) {
-			r_usernameTextField.requestFocus();
-			registrationFrame.setVisible(true);
-			startFrame.setVisible(false);
-		}
-	}
-
-	class registrationListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			if(client.register(r_usernameTextField.getText(), String.valueOf(r_passwordField.getPassword()))) {
-				JOptionPane.showMessageDialog(null, "Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
-				selectTargetFrame.setVisible(true);
-				registrationFrame.setVisible(false);
-			}
-			else {
-				JOptionPane.showMessageDialog(null, "Username has been used", "Error", JOptionPane.ERROR_MESSAGE);
-			}
 		}
 	}
 
@@ -497,8 +570,9 @@ public class ClientGUI {
 			if(client.login(usernameTextField.getText(), String.valueOf(passwordField.getPassword()))) {
 				isLogin = true;
 				client.createFileSocket();
+				selectUserTextField.setText("");
 				selectUserTextField.requestFocus();
-				selectTargetFrame.setVisible(true);
+				selectUserFrame.setVisible(true);
 				startFrame.setVisible(false);
 			}
 			else {//login fail
@@ -507,67 +581,83 @@ public class ClientGUI {
 		}
 	}
 
+	class gotoRegistrationListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+				r_usernameTextField.requestFocus();
+				registrationFrame.setVisible(true);
+				startFrame.setVisible(false);
+		}
+	}
+
+	class registrationListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			if(client.register(r_usernameTextField.getText(), String.valueOf(r_passwordField.getPassword()))) {
+				JOptionPane.showMessageDialog(null, "Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
+				selectUserTextField.setText("");
+				selectUserTextField.requestFocus();
+				selectUserFrame.setVisible(true);
+				registrationFrame.setVisible(false);
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "The username has been used!", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
 	class selectUserListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if(client.selectTarget(selectUserTextField.getText())) {
-				targetUser = selectUserTextField.getText();
-				msgToDisplay.setText(client.restore());
-				isListening = true;
-				startCheckOnline();
-				clientlisten = new ClientListen(client, clientGUI, msgToDisplay, targetUser);
-				clientlisten.start();
-				sendAndListenFrame.setTitle(targetUser);
-				selectUserTextField.setText("");
-				msgToSend.requestFocus();
-				sendAndListenFrame.setVisible(true);
-				selectTargetFrame.setVisible(false);
+					targetUser = selectUserTextField.getText();
+
+					msgToDisplay.setText(client.restore());
+					isListening = true;
+					clientListen = new ClientListen(client, clientGUI, msgToDisplay);
+					clientListen.start();
+
+					msgToSend.setText("");
+					msgToSend.requestFocus();
+					sendAndListenFrame.setTitle(targetUser);
+					sendAndListenFrame.setVisible(true);
+					selectUserFrame.setVisible(false);
 			}
-			else { //target does not exist
+			else {//target does not exist
 				JOptionPane.showMessageDialog(null, "User " + selectUserTextField.getText() + " is not valid!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
 
+	class gotoCreateChatroomListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+			createChatroomTextField.setText("");
+			createChatroomTextField.requestFocus();
+			createChatroomFrame.setVisible(true);
+			selectUserFrame.setVisible(false);
+		}
+	}
+
 	class createChatroomListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			client.createChatRoom(createChatroomTextField.getText());
-			client.enterChatRoom(createChatroomTextField.getText());
+			boolean temp1 = client.createChatRoom(createChatroomTextField.getText());
+			boolean temp2 = client.enterChatRoom(createChatroomTextField.getText());
 
 			msgToDisplay_chatroom.setText(client.restore());
 			isListening = true;
-			clientlisten = new ClientListen(client, clientGUI, msgToDisplay_chatroom, targetUser);
-			clientlisten.start();
-			chatroomName = createChatroomTextField.getText();
-			chatroomUserList.setText(refreshChatroomInfo());
-			createChatroomTextField.setText("");
+			clientListen = new ClientListen(client, clientGUI, msgToDisplay_chatroom);
+			clientListen.start();
+
+			msgToSend_chatroom.setText("");
 			msgToSend_chatroom.requestFocus();
+			chatroomFrame.setTitle(createChatroomTextField.getText());
 			chatroomFrame.setVisible(true);
 			createChatroomFrame.setVisible(false);
 		}	
 	}
 
-	private String refreshChatroomInfo() {
-		isGettingChatroomUserList = true;
-		String[] member = client.getChatRoomMember();
-		int n = member.length;
-		if(n == 1)
-			chatroomFrame.setTitle("chatroom " + chatroomName + ", " + n + " user online");
-		else
-			chatroomFrame.setTitle("chatroom " + chatroomName + ", " + n + " users online");
-		isGettingChatroomUserList = false;
-		return ("<html>Online User:<br>" + String.join("<br>", member) + "</html>");
-	}
-
-	class gotoCreateChatroomListener extends MouseAdapter {
+	class gotoSelectUserListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
-			createChatroomFrame.setVisible(true);
-			selectTargetFrame.setVisible(false);
-		}
-	}
-
-	class gotoSelectTargetListener extends MouseAdapter {
-		public void mouseClicked(MouseEvent e) {
-			selectTargetFrame.setVisible(true);
+			selectUserTextField.setText("");
+			selectUserTextField.requestFocus();
+			selectUserFrame.setVisible(true);
 			createChatroomFrame.setVisible(false);
 		}
 	}
@@ -575,24 +665,43 @@ public class ClientGUI {
 	class sendMsgListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			String msg = msgToSend.getText();
-			if(msg != "")
+			if(msg != "") {
 				msgToDisplay.append("Me: " + msg + "\n");
-			isSending = true;
-			client.send(msg);
-			isSending = false;
-			msgToSend.requestFocus();
-			msgToSend.setText("");
+				isListenLocked = true;
+				client.send(msg);
+				isListenLocked = false;
+				msgToSend.setText("");
+				msgToSend.requestFocus();
+			}
 		}
 	}
 
 	class sendFileListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			isSendingFile = true;
-			FileDialog fd = new FileDialog(sendAndListenFrame, "FileDialog", FileDialog.LOAD);
+			FileDialog fd = new FileDialog(sendAndListenFrame, "Choose a file", FileDialog.LOAD);
 			fd.setVisible(true);
-			if(fd != null)
+			if(fd != null) {
+				isListenLocked = true;
 				client.sendFile(fd.getFile());
-			isSendingFile = false;
+				isListenLocked = false;
+				msgToDisplay.append("[System Message] You have sent a file!\n");
+			}
+		}
+	}
+
+	class knockKnockListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			isListenLocked = true;
+			System.out.println("DEBUG <" + targetUser + "> ");
+			if(client.checkOnline(targetUser) == 1) {
+				knockKnockResult.setForeground(Color.red);
+				knockKnockResult.setText(targetUser + " is online");;
+			}
+			else {
+				knockKnockResult.setForeground(Color.gray);
+				knockKnockResult.setText(targetUser + " is offline");
+			}
+			isListenLocked = false;
 		}
 	}
 
@@ -600,8 +709,9 @@ public class ClientGUI {
 		public void actionPerformed(ActionEvent event) {
 			isListening = false;
 			client.store(msgToDisplay.getText());
+			selectUserTextField.setText("");
 			selectUserTextField.requestFocus();
-			selectTargetFrame.setVisible(true);
+			selectUserFrame.setVisible(true);
 			sendAndListenFrame.setVisible(false);
 		}
 	}
@@ -609,41 +719,47 @@ public class ClientGUI {
 	class sendMsg_chatroom_Listener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			String msg = msgToSend_chatroom.getText();
-			if(msg != "")
+			if(msg != "") {
 				msgToDisplay_chatroom.append("Me: " + msg + "\n");
-			isSending = true;
-			client.send(msg);
-			isSending = false;
-			chatroomUserList.setText(refreshChatroomInfo());
-			msgToSend_chatroom.requestFocus();
-			msgToSend_chatroom.setText("");
+				isListenLocked = true;
+				client.send(msg);
+				isListenLocked = false;
+				msgToSend_chatroom.setText("");
+				msgToSend_chatroom.requestFocus();
+			}
+		}
+	}
+
+	class sendFile_chatroom_Listener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			FileDialog fd = new FileDialog(chatroomFrame, "Choose a file", FileDialog.LOAD);
+			fd.setVisible(true);
+			if(fd != null) {
+				isListenLocked = true;
+				client.sendFile(fd.getFile());
+				isListenLocked = false;
+				msgToDisplay_chatroom.append("[System Message] You have sent a file!\n");
+			}
+		}
+	}
+
+	class knockKnock_chatroom_Listener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			isListenLocked = true;
+			String[] member = client.getChatRoomMember();
+			chatroomUserList.setText("<html><b>Online User</b><br>" + String.join("<br>", member) + "</html>");
+			isListenLocked = false;
 		}
 	}
 
 	class reSelectUser_chatroom_Listener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			int dialogResult = JOptionPane.showConfirmDialog (null, "All messages will be cleared.\nAre you sure to go back?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if(dialogResult == JOptionPane.YES_OPTION) {
-				isListening = false;
-				client.store(msgToDisplay.getText());
-				msgToDisplay_chatroom.setText("");
-				createChatroomTextField.requestFocus();
-				createChatroomFrame.setVisible(true);
-				chatroomFrame.setVisible(false);
-			}
+			isListening = false;
+			client.store(msgToDisplay_chatroom.getText());
+			createChatroomTextField.setText("");
+			createChatroomTextField.requestFocus();
+			createChatroomFrame.setVisible(true);
+			chatroomFrame.setVisible(false);
 		}
-	}
-
-	private void startCheckOnline() {
-		isCheckingOnline = true;
-		if(client.checkOnline(targetUser) == 1) {
-			isTargetUserOnline.setText(targetUser + " is online");
-			isTargetUserOnline.setForeground(Color.green);
-		}
-		else {
-			isTargetUserOnline.setText(targetUser + " is offline");
-			isTargetUserOnline.setForeground(Color.gray);
-		}
-		isCheckingOnline = false;
 	}
 }
