@@ -595,6 +595,7 @@ public class ClientGUI {
 	class gotoRegistrationListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
 			r_usernameTextField.setText("");
+			r_passwordField.setText("");
 			r_usernameTextField.requestFocus();
 			registrationFrame.setVisible(true);
 			startFrame.setVisible(false);
@@ -621,6 +622,7 @@ public class ClientGUI {
 	class gotoStartListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			usernameTextField.setText("");
+			passwordField.setText("");
 			usernameTextField.requestFocus();
 			startFrame.setVisible(true);
 			registrationFrame.setVisible(false);
